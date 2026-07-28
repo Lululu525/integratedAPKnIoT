@@ -87,7 +87,10 @@ $apiUrl = $apiTunnelResult.Url
 
 $bundle = Get-ChildItem (Join-Path $frontendPreview 'assets\index-*.js') | Select-Object -First 1
 $bundleText = [System.IO.File]::ReadAllText($bundle.FullName)
-$bundleText = [regex]::Replace($bundleText, 'http://(?:127\.0\.0\.1|localhost):\d+', $apiUrl)
+$bundleText = $bundleText.Replace('http://127.0.0.1:8000', $apiUrl)
+if (-not $bundleText.Contains($apiUrl)) {
+    throw "The frontend API URL could not be configured."
+}
 [System.IO.File]::WriteAllText($bundle.FullName, $bundleText, [System.Text.UTF8Encoding]::new($false))
 
 $frontendProcess = Start-Process -FilePath $pythonExe -ArgumentList $staticServer,'--directory',$frontendPreview,'--port','5100','--bind','127.0.0.1' -WorkingDirectory $frontendPreview -WindowStyle Hidden -PassThru
@@ -109,6 +112,9 @@ $portalUrl = $portalTunnelResult.Url
 
 $bundleText = [System.IO.File]::ReadAllText($bundle.FullName)
 $bundleText = $bundleText.Replace('http://127.0.0.1:8080', $portalUrl)
+if (-not $bundleText.Contains($portalUrl)) {
+    throw "The frontend portal navigation URL could not be configured."
+}
 [System.IO.File]::WriteAllText($bundle.FullName, $bundleText, [System.Text.UTF8Encoding]::new($false))
 
 $processIds = @($apiProcess.Id, $apiTunnel.Id, $frontendProcess.Id, $frontendTunnel.Id, $portalProcess.Id, $portalTunnel.Id)
