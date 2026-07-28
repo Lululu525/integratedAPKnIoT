@@ -5,3 +5,4 @@ Thumbs.db
 .public-preview/
 __pycache__/
 *.pyc
+assets/favicon-preview.png

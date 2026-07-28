@@ -74,7 +74,7 @@ if (Test-Path $portalPreview) {
 Copy-Item (Join-Path $frontendRoot "dist") $frontendPreview -Recurse -Force
 New-Item -ItemType Directory -Force -Path $portalPreview | Out-Null
 Copy-Item (Join-Path $portalRoot "assets") $portalPreview -Recurse -Force
-Copy-Item (Join-Path $portalRoot "index.html"), (Join-Path $portalRoot "iot-system.html"), (Join-Path $portalRoot "apk-system.html"), (Join-Path $portalRoot "styles.css"), (Join-Path $portalRoot "script.js"), (Join-Path $portalRoot "config.js") $portalPreview -Force
+Copy-Item (Join-Path $portalRoot "index.html"), (Join-Path $portalRoot "iot-system.html"), (Join-Path $portalRoot "apk-system.html"), (Join-Path $portalRoot "styles.css"), (Join-Path $portalRoot "script.js"), (Join-Path $portalRoot "config.js"), (Join-Path $portalRoot "favicon.ico") $portalPreview -Force
 
 $env:CELERY_TASK_ALWAYS_EAGER = "1"
 $env:ALLOW_TUNNEL_ORIGINS = "1"
