@@ -19,7 +19,13 @@
       <nav class="nav-links nav-item-animate">
         <a href="#home">首頁</a>
         <a href="#product">平台介紹</a>
-        <a href="#services">核心服務</a>
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-trigger" href="#services" aria-haspopup="true">核心服務 <span aria-hidden="true">⌄</span></a>
+          <div class="nav-dropdown-menu" aria-label="核心服務選單">
+            <a data-apk-frontend href="http://127.0.0.1:5173">APK 安全分析</a>
+            <a href="iot-system.html">IoT 裝置檢測</a>
+          </div>
+        </div>
         <a href="#flow">使用流程</a>
         <a href="#contact">聯絡我們</a>
       </nav>

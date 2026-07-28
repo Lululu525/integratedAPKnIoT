@@ -25,6 +25,15 @@ img{max-width:100%;display:block}
 .brand-word{font-family:'Orbitron','Inter',sans-serif;font-size:2rem;letter-spacing:-.06em;font-weight:800;color:#0a1f44}
 .nav-links{display:flex;gap:36px;color:#21324f;font-weight:800}
 .nav-links a:hover{color:#0f5ff3}
+.nav-dropdown{position:relative;display:flex;align-items:center}
+.nav-dropdown-trigger{display:inline-flex;align-items:center;gap:6px}
+.nav-dropdown-trigger span{font-size:.9em;transition:transform .2s ease}
+.nav-dropdown-menu{position:absolute;top:calc(100% + 18px);left:50%;transform:translate(-50%,-8px);width:220px;padding:10px;border-radius:18px;background:rgba(255,255,255,.98);border:1px solid rgba(8,18,33,.12);box-shadow:0 20px 46px rgba(10,22,40,.16);opacity:0;visibility:hidden;pointer-events:none;transition:.2s ease}
+.nav-dropdown-menu::before{content:"";position:absolute;left:0;right:0;top:-20px;height:20px}
+.nav-dropdown-menu a{display:block;padding:12px 14px;border-radius:12px;color:#21324f;white-space:nowrap}
+.nav-dropdown-menu a:hover,.nav-dropdown-menu a:focus-visible{color:#0f5ff3;background:#edf4ff;outline:none}
+.nav-dropdown:hover .nav-dropdown-menu,.nav-dropdown:focus-within .nav-dropdown-menu{opacity:1;visibility:visible;pointer-events:auto;transform:translate(-50%,0)}
+.nav-dropdown:hover .nav-dropdown-trigger span,.nav-dropdown:focus-within .nav-dropdown-trigger span{transform:rotate(180deg)}
 .nav-actions{display:flex;gap:14px}
 .btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:15px 28px;font-weight:900;border:1px solid transparent;transition:.28s ease}
 .btn-blue{background:linear-gradient(135deg,#2f7dff,#1154e5);color:white;box-shadow:0 16px 36px rgba(29,114,255,.22)}
