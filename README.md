@@ -22,6 +22,18 @@ window.APIONIX_CONFIG = Object.freeze({
 
 ## 本機預覽
 
+### 完整 APK 分析模式
+
+請確認本專案與 `apk-analysis-platform` 位於同一個上層目錄，接著執行：
+
+```powershell
+.\start-local.bat
+```
+
+腳本會啟動 Apionix 封面（8080）、APK 前端（5173）與 FastAPI（8000）。本機模式使用 Celery eager 執行分析工作，因此不需要另外啟動 Redis；正式部署仍使用 Celery worker 與 Redis。
+
+### 只預覽封面
+
 在本專案目錄執行：
 
 ```powershell
