@@ -3,74 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Apionix｜APK 分析系統</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body class="system-page">
-  <header class="site-header nav-animate is-loaded">
-    <div class="container nav-wrap">
-      <a class="brand brand-image-only" href="index.html" aria-label="Apionix 首頁">
-        <img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" />
-      </a>
-      <nav class="nav-links nav-item-animate">
-        <a href="index.html#home">首頁</a>
-        <a href="index.html#services">核心服務</a>
-        <a href="apk-system.html">APK 系統</a>
-        <a href="iot-system.html">IoT 系統</a>
-      </nav>
-      <div class="nav-actions nav-item-animate">
-        <a class="btn btn-line" href="index.html">返回首頁</a>
-      </div>
-    </div>
-  </header>
-
-  <main class="system-main">
-    <section class="system-hero">
-      <div class="container system-hero-grid">
-        <div class="reveal is-visible">
-          <p class="eyebrow">APK SECURITY ANALYSIS</p>
-          <h1 class="system-title">APK 分析系統</h1>
-          <p class="system-text">從 Apionix 入口前往 APK Analysis Platform，完成 APK 上傳、靜態分析、機器學習評估、結果檢視與 PDF 報告下載。</p>
-          <div class="system-actions">
-            <a class="btn btn-blue system-launch" data-apk-frontend href="http://127.0.0.1:5173">開啟 APK Analysis Platform</a>
-            <a class="btn btn-dark" href="index.html#services">查看服務介紹</a>
-          </div>
-        </div>
-        <div class="system-panel reveal is-visible">
-          <h3>正式分析流程</h3>
-          <div class="status-row"><span>1</span><b>上傳 Android APK</b></div>
-          <div class="status-row"><span>2</span><b>執行靜態分析</b></div>
-          <div class="status-row"><span>3</span><b>查看獨立 ML 評估</b></div>
-          <div class="status-row"><span>4</span><b class="ok">下載安全 PDF 報告</b></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="system-content" id="result">
-      <div class="container dashboard-grid">
-        <article class="dashboard-card">
-          <h3>權限風險檢測</h3>
-          <p>檢查 App 是否要求位置、相機、麥克風、簡訊、聯絡人等高敏感權限。</p>
-        </article>
-        <article class="dashboard-card">
-          <h3>敏感 API 掃描</h3>
-          <p>整理 App 呼叫的敏感 API，協助判斷是否存在潛在安全風險。</p>
-        </article>
-        <article class="dashboard-card">
-          <h3>可疑行為分析</h3>
-          <p>檢視動態載入、反射、命令執行與 WebView 相關風險行為。</p>
-        </article>
-        <article class="dashboard-card">
-          <h3>報告輸出</h3>
-          <p>將分析結果彙整為摘要，方便團隊後續討論與修正。</p>
-        </article>
-      </div>
-    </section>
-  </main>
+  <title>正在前往 APK Analysis Platform</title>
   <script src="config.js"></script>
+  <script>
+    window.location.replace(
+      window.APIONIX_CONFIG?.apkFrontendUrl || "http://127.0.0.1:5173"
+    );
+  </script>
+</head>
+<body>
+  <p>正在前往 APK Analysis Platform…</p>
+  <p><a data-apk-frontend href="http://127.0.0.1:5173">若沒有自動前往，請點此開啟分析前端</a></p>
   <script src="script.js"></script>
 </body>
 </html>

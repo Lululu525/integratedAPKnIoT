@@ -3,8 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (apkFrontendUrl) {
     document.querySelectorAll("[data-apk-frontend]").forEach((link) => {
       link.href = apkFrontendUrl;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
     });
   }
 

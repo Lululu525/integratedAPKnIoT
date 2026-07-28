@@ -4,7 +4,7 @@ Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個�
 
 ## APK Analysis Platform 連線
 
-首頁的「進入 APK 分析系統」會先進入 `apk-system.html`。使用者點擊「開啟 APK Analysis Platform」後，網站會開啟真正的 APK 分析前端；入口頁不會產生或顯示虛構分析結果。
+首頁的「進入 APK 分析系統」會直接開啟真正的 APK 分析前端，不經過中間介紹頁。舊的 `apk-system.html` 網址仍保留為自動轉址，避免既有書籤失效。
 
 預設開發環境網址：
 
@@ -33,10 +33,9 @@ python -m http.server 8080
 ## 專案結構
 
 - `index.html`：Apionix 封面與產品介紹
-- `apk-system.html`：APK Analysis Platform 入口
+- `apk-system.html`：舊網址相容用的自動轉址頁
 - `iot-system.html`：IoT 系統入口
 - `config.js`：外部系統網址設定
 - `styles.css`：共用視覺樣式
 - `script.js`：動畫與系統連結初始化
 - `assets/`：品牌及產品圖片
-
