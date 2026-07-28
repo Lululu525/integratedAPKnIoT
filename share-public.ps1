@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $portalRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $platformRoot = Join-Path (Split-Path -Parent $portalRoot) "apk-analysis-platform"
 $pythonExe = Join-Path $platformRoot ".venv\Scripts\python.exe"
+$staticServer = Join-Path $portalRoot "serve_static.py"
 $cloudflaredExe = (Get-Command cloudflared.exe -ErrorAction Stop).Source
 $previewRoot = Join-Path $portalRoot ".public-preview"
 $frontendPreview = Join-Path $previewRoot "frontend"
@@ -29,6 +30,12 @@ function Wait-TunnelUrl {
 }
 
 New-Item -ItemType Directory -Force -Path $previewRoot | Out-Null
+if (Test-Path $frontendPreview) {
+    Remove-Item -LiteralPath $frontendPreview -Recurse -Force
+}
+if (Test-Path $portalPreview) {
+    Remove-Item -LiteralPath $portalPreview -Recurse -Force
+}
 Copy-Item (Join-Path $platformRoot "FrontendUI\dist") $frontendPreview -Recurse -Force
 New-Item -ItemType Directory -Force -Path $portalPreview | Out-Null
 Copy-Item (Join-Path $portalRoot "assets") $portalPreview -Recurse -Force
@@ -47,7 +54,7 @@ $bundleText = [System.IO.File]::ReadAllText($bundle.FullName)
 $bundleText = [regex]::Replace($bundleText, 'http://(?:127\.0\.0\.1|localhost):\d+', $apiUrl)
 [System.IO.File]::WriteAllText($bundle.FullName, $bundleText, [System.Text.UTF8Encoding]::new($false))
 
-$frontendProcess = Start-Process -FilePath $pythonExe -ArgumentList '-m','http.server','5100','--bind','127.0.0.1' -WorkingDirectory $frontendPreview -WindowStyle Hidden -PassThru
+$frontendProcess = Start-Process -FilePath $pythonExe -ArgumentList $staticServer,'--directory',$frontendPreview,'--port','5100','--bind','127.0.0.1' -WorkingDirectory $frontendPreview -WindowStyle Hidden -PassThru
 $frontendLog = Join-Path $previewRoot "frontend-tunnel.log"
 $frontendTunnel = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url','http://127.0.0.1:5100','--no-autoupdate' -RedirectStandardError $frontendLog -WindowStyle Hidden -PassThru
 $frontendUrl = Wait-TunnelUrl $frontendLog
@@ -57,7 +64,7 @@ $configText = [System.IO.File]::ReadAllText($configPath)
 $configText = [regex]::Replace($configText, 'apkFrontendUrl:\s*"[^"]+"', "apkFrontendUrl: `"$frontendUrl`"")
 [System.IO.File]::WriteAllText($configPath, $configText, [System.Text.UTF8Encoding]::new($false))
 
-$portalProcess = Start-Process -FilePath $pythonExe -ArgumentList '-m','http.server','8101','--bind','127.0.0.1' -WorkingDirectory $portalPreview -WindowStyle Hidden -PassThru
+$portalProcess = Start-Process -FilePath $pythonExe -ArgumentList $staticServer,'--directory',$portalPreview,'--port','8101','--bind','127.0.0.1' -WorkingDirectory $portalPreview -WindowStyle Hidden -PassThru
 $portalLog = Join-Path $previewRoot "portal-tunnel.log"
 $portalTunnel = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url','http://127.0.0.1:8101','--no-autoupdate' -RedirectStandardError $portalLog -WindowStyle Hidden -PassThru
 $portalUrl = Wait-TunnelUrl $portalLog
@@ -71,4 +78,3 @@ Write-Host $portalUrl -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Keep this window and your computer running while teammates test."
 Write-Host "Run stop-public.bat when testing is finished."
-

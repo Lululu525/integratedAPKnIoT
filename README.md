@@ -28,6 +28,8 @@ window.APIONIX_CONFIG = Object.freeze({
 
 公開測試網址沒有固定網址或正常運作時間保證，請勿用於正式環境，也不要上傳機密 APK。
 
+網站透過 `serve_static.py` 提供正確的 JavaScript MIME 類型，避免 Windows 將 Vite 模組誤判為 `text/plain`。
+
 ### 完整 APK 分析模式
 
 請確認本專案與 `apk-analysis-platform` 位於同一個上層目錄，接著執行：
