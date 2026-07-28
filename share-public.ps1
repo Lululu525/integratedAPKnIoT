@@ -13,6 +13,13 @@ if (-not (Test-Path $pythonExe)) {
     throw "APK Analysis Platform virtual environment was not found: $pythonExe"
 }
 
+$frontendRoot = Join-Path $platformRoot "FrontendUI"
+Write-Host "Building the latest APK frontend..."
+$buildProcess = Start-Process -FilePath "npm.cmd" -ArgumentList "run","build" -WorkingDirectory $frontendRoot -Wait -PassThru -NoNewWindow
+if ($buildProcess.ExitCode -ne 0) {
+    throw "Frontend build failed. Fix the build error before creating public links."
+}
+
 function Wait-TunnelUrl {
     param([string]$LogPath)
 
@@ -36,7 +43,7 @@ if (Test-Path $frontendPreview) {
 if (Test-Path $portalPreview) {
     Remove-Item -LiteralPath $portalPreview -Recurse -Force
 }
-Copy-Item (Join-Path $platformRoot "FrontendUI\dist") $frontendPreview -Recurse -Force
+Copy-Item (Join-Path $frontendRoot "dist") $frontendPreview -Recurse -Force
 New-Item -ItemType Directory -Force -Path $portalPreview | Out-Null
 Copy-Item (Join-Path $portalRoot "assets") $portalPreview -Recurse -Force
 Copy-Item (Join-Path $portalRoot "index.html"), (Join-Path $portalRoot "iot-system.html"), (Join-Path $portalRoot "apk-system.html"), (Join-Path $portalRoot "styles.css"), (Join-Path $portalRoot "script.js"), (Join-Path $portalRoot "config.js") $portalPreview -Force

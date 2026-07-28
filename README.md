@@ -24,7 +24,7 @@ window.APIONIX_CONFIG = Object.freeze({
 
 ### 分享公開測試網址
 
-執行 `share-public.bat`。腳本會透過 Cloudflare Quick Tunnel 建立臨時 HTTPS 網址，並在完成後顯示可傳給組員的 Apionix 入口網址。測試期間電腦與腳本啟動的服務必須保持運作；完成測試後執行 `stop-public.bat` 關閉所有公開入口。
+執行 `share-public.bat`。腳本會先建置最新 APK 前端，再透過 Cloudflare Quick Tunnel 建立臨時 HTTPS 網址，並在完成後顯示可傳給組員的 Apionix 入口網址。測試期間電腦與腳本啟動的服務必須保持運作；完成測試後執行 `stop-public.bat` 關閉所有公開入口。
 
 公開測試網址沒有固定網址或正常運作時間保證，請勿用於正式環境，也不要上傳機密 APK。
 
