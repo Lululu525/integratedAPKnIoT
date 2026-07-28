@@ -107,6 +107,10 @@ $portalTunnelResult = Start-QuickTunnel 'http://127.0.0.1:8101' $portalLog
 $portalTunnel = $portalTunnelResult.Process
 $portalUrl = $portalTunnelResult.Url
 
+$bundleText = [System.IO.File]::ReadAllText($bundle.FullName)
+$bundleText = $bundleText.Replace('http://127.0.0.1:8080', $portalUrl)
+[System.IO.File]::WriteAllText($bundle.FullName, $bundleText, [System.Text.UTF8Encoding]::new($false))
+
 $processIds = @($apiProcess.Id, $apiTunnel.Id, $frontendProcess.Id, $frontendTunnel.Id, $portalProcess.Id, $portalTunnel.Id)
 $processIds | ConvertTo-Json | Set-Content (Join-Path $previewRoot 'pids.json') -Encoding UTF8
 
