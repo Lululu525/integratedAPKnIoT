@@ -47,7 +47,7 @@ function Start-QuickTunnel {
             Remove-Item -LiteralPath $LogPath -Force
         }
 
-        $tunnelProcess = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url',$LocalUrl,'--no-autoupdate' -RedirectStandardError $LogPath -WindowStyle Hidden -PassThru
+        $tunnelProcess = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url',$LocalUrl,'--protocol','http2','--no-autoupdate' -RedirectStandardError $LogPath -WindowStyle Hidden -PassThru
         try {
             $publicUrl = Wait-TunnelUrl $LogPath
             return [PSCustomObject]@{
