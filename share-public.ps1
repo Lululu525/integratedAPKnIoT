@@ -26,7 +26,7 @@ function Wait-TunnelUrl {
     for ($attempt = 0; $attempt -lt 60; $attempt++) {
         Start-Sleep -Milliseconds 500
         if (Test-Path $LogPath) {
-            $match = Select-String -Path $LogPath -Pattern 'https://[a-z0-9-]+\.trycloudflare\.com' -AllMatches |
+            $match = Select-String -Path $LogPath -Pattern 'https://(?!api\.)[a-z0-9-]+\.trycloudflare\.com' -AllMatches |
                 Select-Object -Last 1
             if ($match) {
                 return $match.Matches[-1].Value
@@ -34,6 +34,34 @@ function Wait-TunnelUrl {
         }
     }
     throw "Cloudflare Tunnel did not return a public URL. Check $LogPath"
+}
+
+function Start-QuickTunnel {
+    param(
+        [string]$LocalUrl,
+        [string]$LogPath
+    )
+
+    for ($attempt = 1; $attempt -le 3; $attempt++) {
+        if (Test-Path $LogPath) {
+            Remove-Item -LiteralPath $LogPath -Force
+        }
+
+        $tunnelProcess = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url',$LocalUrl,'--no-autoupdate' -RedirectStandardError $LogPath -WindowStyle Hidden -PassThru
+        try {
+            $publicUrl = Wait-TunnelUrl $LogPath
+            return [PSCustomObject]@{
+                Process = $tunnelProcess
+                Url = $publicUrl
+            }
+        } catch {
+            Stop-Process -Id $tunnelProcess.Id -Force -ErrorAction SilentlyContinue
+            if ($attempt -eq 3) {
+                throw "Cloudflare Tunnel failed after 3 attempts. Check $LogPath"
+            }
+            Start-Sleep -Seconds 2
+        }
+    }
 }
 
 New-Item -ItemType Directory -Force -Path $previewRoot | Out-Null
@@ -53,8 +81,9 @@ $env:ALLOW_TUNNEL_ORIGINS = "1"
 $apiProcess = Start-Process -FilePath $pythonExe -ArgumentList '-m','uvicorn','apps.api.main:app','--host','127.0.0.1','--port','8100' -WorkingDirectory (Join-Path $platformRoot 'apk-platform') -WindowStyle Hidden -PassThru
 
 $apiLog = Join-Path $previewRoot "api-tunnel.log"
-$apiTunnel = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url','http://127.0.0.1:8100','--no-autoupdate' -RedirectStandardError $apiLog -WindowStyle Hidden -PassThru
-$apiUrl = Wait-TunnelUrl $apiLog
+$apiTunnelResult = Start-QuickTunnel 'http://127.0.0.1:8100' $apiLog
+$apiTunnel = $apiTunnelResult.Process
+$apiUrl = $apiTunnelResult.Url
 
 $bundle = Get-ChildItem (Join-Path $frontendPreview 'assets\index-*.js') | Select-Object -First 1
 $bundleText = [System.IO.File]::ReadAllText($bundle.FullName)
@@ -63,8 +92,9 @@ $bundleText = [regex]::Replace($bundleText, 'http://(?:127\.0\.0\.1|localhost):\
 
 $frontendProcess = Start-Process -FilePath $pythonExe -ArgumentList $staticServer,'--directory',$frontendPreview,'--port','5100','--bind','127.0.0.1' -WorkingDirectory $frontendPreview -WindowStyle Hidden -PassThru
 $frontendLog = Join-Path $previewRoot "frontend-tunnel.log"
-$frontendTunnel = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url','http://127.0.0.1:5100','--no-autoupdate' -RedirectStandardError $frontendLog -WindowStyle Hidden -PassThru
-$frontendUrl = Wait-TunnelUrl $frontendLog
+$frontendTunnelResult = Start-QuickTunnel 'http://127.0.0.1:5100' $frontendLog
+$frontendTunnel = $frontendTunnelResult.Process
+$frontendUrl = $frontendTunnelResult.Url
 
 $configPath = Join-Path $portalPreview 'config.js'
 $configText = [System.IO.File]::ReadAllText($configPath)
@@ -73,8 +103,9 @@ $configText = [regex]::Replace($configText, 'apkFrontendUrl:\s*"[^"]+"', "apkFro
 
 $portalProcess = Start-Process -FilePath $pythonExe -ArgumentList $staticServer,'--directory',$portalPreview,'--port','8101','--bind','127.0.0.1' -WorkingDirectory $portalPreview -WindowStyle Hidden -PassThru
 $portalLog = Join-Path $previewRoot "portal-tunnel.log"
-$portalTunnel = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url','http://127.0.0.1:8101','--no-autoupdate' -RedirectStandardError $portalLog -WindowStyle Hidden -PassThru
-$portalUrl = Wait-TunnelUrl $portalLog
+$portalTunnelResult = Start-QuickTunnel 'http://127.0.0.1:8101' $portalLog
+$portalTunnel = $portalTunnelResult.Process
+$portalUrl = $portalTunnelResult.Url
 
 $processIds = @($apiProcess.Id, $apiTunnel.Id, $frontendProcess.Id, $frontendTunnel.Id, $portalProcess.Id, $portalTunnel.Id)
 $processIds | ConvertTo-Json | Set-Content (Join-Path $previewRoot 'pids.json') -Encoding UTF8
