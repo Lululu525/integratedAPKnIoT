@@ -4,7 +4,7 @@ Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個�
 
 ## 整合操作流程
 
-從首頁選擇 APK 或 IoT 後，網站會進入 `system.html` 共用操作殼層。使用者可以在不離開 Apionix 導航的情況下：
+APK 入口會進入 `system.html` 共用操作殼層；IoT 入口則直接開啟 IoT 團隊的真正前端，避免停留在介紹頁或 GitHub 專案頁。APK 操作殼層提供：
 
 - 在 APK 安全分析與 IoT 裝置管理之間切換
 - 返回 Apionix 首頁
