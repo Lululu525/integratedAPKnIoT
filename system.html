@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Apionix 整合 APK 安全分析與 IoT 韌體裝置管理工作區。" />
+  <link rel="icon" type="image/png" href="assets/apionix-phoenix-favicon.png?v=2" />
+  <title>安全工作區｜Apionix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="workspace-page">
+  <header class="workspace-header">
+    <div class="workspace-brand-group">
+      <a class="workspace-brand" href="index.html" aria-label="返回 Apionix 首頁">
+        <img src="assets/apionix-wordmark.png" alt="Apionix" />
+      </a>
+      <span class="workspace-divider" aria-hidden="true"></span>
+      <div class="workspace-context">
+        <span class="workspace-eyebrow">SECURITY WORKSPACE</span>
+        <strong id="workspaceTitle">載入服務中</strong>
+      </div>
+    </div>
+
+    <nav class="workspace-switcher" aria-label="切換安全服務">
+      <a class="workspace-service" data-service-link="apk" href="system.html?service=apk">
+        <span class="service-dot apk-dot" aria-hidden="true"></span>
+        APK 分析
+      </a>
+      <a class="workspace-service" data-service-link="iot" href="system.html?service=iot">
+        <span class="service-dot iot-dot" aria-hidden="true"></span>
+        IoT 管理
+      </a>
+    </nav>
+
+    <div class="workspace-actions">
+      <button class="workspace-icon-button" id="reloadService" type="button" aria-label="重新載入服務" title="重新載入服務">↻</button>
+      <a class="workspace-open-button" id="openExternal" href="#" target="_blank" rel="noopener noreferrer">另開視窗 <span aria-hidden="true">↗</span></a>
+      <a class="workspace-home-button" href="index.html"><span aria-hidden="true">←</span> 回首頁</a>
+    </div>
+  </header>
+
+  <main class="workspace-main">
+    <div class="workspace-status" id="workspaceStatus" role="status" aria-live="polite">
+      <span class="workspace-spinner" aria-hidden="true"></span>
+      <div><strong>正在連接服務</strong><span id="workspaceStatusText">請稍候，系統正在載入。</span></div>
+    </div>
+
+    <iframe
+      id="serviceFrame"
+      class="workspace-frame"
+      title="Apionix 安全服務"
+      allow="clipboard-read; clipboard-write"
+    ></iframe>
+
+    <section class="workspace-error" id="workspaceError" hidden>
+      <div class="workspace-error-icon" aria-hidden="true">!</div>
+      <p class="workspace-eyebrow">CONNECTION NOTICE</p>
+      <h1 id="workspaceErrorTitle">服務暫時無法載入</h1>
+      <p id="workspaceErrorText">請確認對應的前端與後端已啟動，再重新載入。</p>
+      <div class="workspace-error-actions">
+        <button class="btn btn-blue" id="retryService" type="button">重新連線</button>
+        <a class="btn btn-line" href="index.html">返回首頁</a>
+      </div>
+      <details>
+        <summary>查看測試提示</summary>
+        <p>本機整合模式需要同時啟動 Apionix、APK 前後端與 IoT 前後端。可在整合專案執行 <code>start-local.bat</code>。</p>
+      </details>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="workspace.js"></script>
+</body>
+</html>

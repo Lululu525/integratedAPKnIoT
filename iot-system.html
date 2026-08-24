@@ -19,9 +19,16 @@
       </a>
       <nav class="nav-links nav-item-animate">
         <a href="index.html#home">首頁</a>
-        <a href="index.html#services">核心服務</a>
-        <a data-apk-frontend href="http://127.0.0.1:5173">APK 系統</a>
-        <a href="iot-system.html">IoT 系統</a>
+        <a href="platform.html">平台介紹</a>
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-trigger" href="index.html#services" aria-haspopup="true">核心服務 <span aria-hidden="true">⌄</span></a>
+          <div class="nav-dropdown-menu" aria-label="核心服務選單">
+            <a data-apk-frontend href="http://127.0.0.1:5173">APK 安全分析</a>
+            <a data-iot-system href="https://github.com/Lee-Po-Tsung/ESP-Firmware-Over-The-Air">IoT 裝置檢測</a>
+          </div>
+        </div>
+        <a href="workflow.html">使用流程</a>
+        <a href="contact.html">聯絡我們</a>
       </nav>
       <div class="nav-actions nav-item-animate">
         <a class="btn btn-line" href="index.html">返回首頁</a>
@@ -41,7 +48,7 @@
               上傳韌體檔案
               <input type="file" accept=".bin,.hex" />
             </label>
-            <a class="btn btn-blue" href="#devices">查看裝置狀態</a>
+            <a class="btn btn-blue" data-iot-system href="https://github.com/Lee-Po-Tsung/ESP-Firmware-Over-The-Air">開啟 IoT 專案</a>
           </div>
         </div>
         <div class="system-panel reveal is-visible">

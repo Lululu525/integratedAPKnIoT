@@ -2,7 +2,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const apkFrontendUrl = window.APIONIX_CONFIG?.apkFrontendUrl;
   if (apkFrontendUrl) {
     document.querySelectorAll("[data-apk-frontend]").forEach((link) => {
-      link.href = apkFrontendUrl;
+      link.href = "system.html?service=apk";
+    });
+  }
+
+  const iotSystemUrl = window.APIONIX_CONFIG?.iotSystemUrl;
+  if (iotSystemUrl) {
+    document.querySelectorAll("[data-iot-system]").forEach((link) => {
+      link.href = "system.html?service=iot";
+      link.removeAttribute("target");
+      link.removeAttribute("rel");
     });
   }
 

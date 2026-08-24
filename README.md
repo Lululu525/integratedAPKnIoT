@@ -1,10 +1,20 @@
 # integratedAPKnIoT
 
-Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個產品入口。
+Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個產品入口。兩套來源系統維持各自的 GitHub 儲存庫與前後端架構，本專案僅負責一致的導航、服務切換與啟動流程。
+
+## 整合操作流程
+
+從首頁選擇 APK 或 IoT 後，網站會進入 `system.html` 共用操作殼層。使用者可以在不離開 Apionix 導航的情況下：
+
+- 在 APK 安全分析與 IoT 裝置管理之間切換
+- 返回 Apionix 首頁
+- 重新載入目前系統
+- 在新分頁開啟原始系統
+- 在服務尚未啟動時看到明確的修復提示
 
 ## APK Analysis Platform 連線
 
-首頁的「進入 APK 分析系統」會直接開啟真正的 APK 分析前端，不經過中間介紹頁。舊的 `apk-system.html` 網址仍保留為自動轉址，避免既有書籤失效。
+首頁的「進入 APK 分析系統」會在共用操作殼層中載入真正的 APK 分析前端。舊的 `apk-system.html` 網址仍保留，避免既有書籤失效。
 
 預設開發環境網址：
 
@@ -24,7 +34,7 @@ window.APIONIX_CONFIG = Object.freeze({
 
 ### 分享公開測試網址
 
-執行 `share-public.bat`。腳本會先建置最新 APK 前端，再透過 Cloudflare Quick Tunnel 建立臨時 HTTPS 網址，並在完成後顯示可傳給組員的 Apionix 入口網址。測試期間電腦與腳本啟動的服務必須保持運作；完成測試後執行 `stop-public.bat` 關閉所有公開入口。
+執行 `share-public.bat`。腳本會建置最新 APK 與 IoT 前端、啟動兩套 API，再透過 Cloudflare Quick Tunnel 建立臨時 HTTPS 網址，並在完成後顯示可傳給組員的單一 Apionix 入口網址。測試期間電腦與腳本啟動的服務必須保持運作；完成測試後執行 `stop-public.bat` 關閉所有公開入口。
 
 公開測試網址沒有固定網址或正常運作時間保證，請勿用於正式環境，也不要上傳機密 APK。
 
@@ -38,7 +48,15 @@ window.APIONIX_CONFIG = Object.freeze({
 .\start-local.bat
 ```
 
-腳本會啟動 Apionix 封面（8080）、APK 前端（5173）與 FastAPI（8000）。本機模式使用 Celery eager 執行分析工作，因此不需要另外啟動 Redis；正式部署仍使用 Celery worker 與 Redis。
+腳本會一次啟動：
+
+- Apionix 整合入口：8080
+- APK 前端：5173
+- APK FastAPI：8000
+- IoT 前端：5180
+- IoT FastAPI：8100
+
+本機 APK 模式使用 Celery eager 執行分析工作，因此不需要另外啟動 Redis；正式部署仍使用 Celery worker 與 Redis。IoT 系統沿用其來源專案的資料與驗證設定。
 
 ### 只預覽封面
 
@@ -55,6 +73,8 @@ python -m http.server 8080
 - `index.html`：Apionix 封面與產品介紹
 - `apk-system.html`：舊網址相容用的自動轉址頁
 - `iot-system.html`：IoT 系統入口
+- `system.html`：APK／IoT 共用操作殼層
+- `workspace.js`：服務切換、載入狀態與錯誤處理
 - `config.js`：外部系統網址設定
 - `styles.css`：共用視覺樣式
 - `script.js`：動畫與系統連結初始化
