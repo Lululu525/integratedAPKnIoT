@@ -23,6 +23,7 @@ IOT_PYTHON = IOT_ROOT / ".venv" / "Scripts" / "python.exe"
 DEMO_USERNAME = "apionix-demo"
 DEMO_PASSWORD = "apionix-local-demo-2026"
 RUNTIME_ROOT = ROOT / ".integrated-runtime"
+APK_FRONTEND_RUNTIME = RUNTIME_ROOT / "apk-frontend"
 IOT_FRONTEND_RUNTIME = RUNTIME_ROOT / "iot-frontend"
 
 
@@ -78,6 +79,27 @@ def fetch_iot_demo_session() -> dict[str, str]:
     with urllib.request.urlopen(request, timeout=10) as response:
         token = json.load(response)["access_token"]
     return {"token": token, "username": DEMO_USERNAME, "role": "admin"}
+
+
+def prepare_apk_frontend() -> None:
+    """Create an integration-only APK build without its duplicate portal header."""
+    source = APK_ROOT / "FrontendUI" / "dist"
+    if APK_FRONTEND_RUNTIME.exists():
+        shutil.rmtree(APK_FRONTEND_RUNTIME)
+    APK_FRONTEND_RUNTIME.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source, APK_FRONTEND_RUNTIME)
+
+    index_path = APK_FRONTEND_RUNTIME / "index.html"
+    html = index_path.read_text(encoding="utf-8")
+    integration_styles = (
+        "<style id=\"apionix-integration-apk\">"
+        "#root>div>header:first-child{display:none!important}"
+        "</style>"
+    )
+    index_path.write_text(
+        html.replace("</head>", f"{integration_styles}\n</head>", 1),
+        encoding="utf-8",
+    )
 
 
 def prepare_iot_frontend(session: dict[str, str]) -> None:
@@ -155,6 +177,8 @@ def main() -> int:
         print(f"ERROR: {exc}")
         return 1
 
+    prepare_apk_frontend()
+
     start(
         "Shared account API",
         8200,
@@ -190,7 +214,7 @@ def main() -> int:
         ],
         ROOT,
     )
-    start("APK frontend", 5173, [str(APK_PYTHON), str(ROOT / "serve_static.py"), "--directory", str(APK_ROOT / "FrontendUI" / "dist"), "--port", "5173", "--bind", "127.0.0.1"], ROOT)
+    start("APK frontend", 5173, [str(APK_PYTHON), str(ROOT / "serve_static.py"), "--directory", str(APK_FRONTEND_RUNTIME), "--port", "5173", "--bind", "127.0.0.1", "--spa-fallback"], ROOT)
     start("APK API", 8000, [str(APK_PYTHON), "-m", "uvicorn", "apps.api.main:app", "--host", "127.0.0.1", "--port", "8000"], APK_ROOT / "apk-platform", apk_env)
     start("IoT API", 8100, [str(IOT_PYTHON), "-m", "uvicorn", "main:app", "--app-dir", "backend", "--host", "127.0.0.1", "--port", "8100"], IOT_ROOT, iot_env)
 
