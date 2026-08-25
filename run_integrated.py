@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -18,7 +20,10 @@ APK_ROOT = WORKSPACE / "apk-analysis-platform"
 IOT_ROOT = WORKSPACE / "ESP-Firmware-Over-The-Air"
 APK_PYTHON = APK_ROOT / ".venv" / "Scripts" / "python.exe"
 IOT_PYTHON = IOT_ROOT / ".venv" / "Scripts" / "python.exe"
-NPM = "npm.cmd" if os.name == "nt" else "npm"
+DEMO_USERNAME = "apionix-demo"
+DEMO_PASSWORD = "apionix-local-demo-2026"
+RUNTIME_ROOT = ROOT / ".integrated-runtime"
+IOT_FRONTEND_RUNTIME = RUNTIME_ROOT / "iot-frontend"
 
 
 def port_open(port: int) -> bool:
@@ -39,12 +44,68 @@ def wait_http(url: str, timeout: float = 45.0) -> bool:
     return False
 
 
+def ensure_iot_demo_user(iot_env: dict[str, str]) -> None:
+    user_env = iot_env.copy()
+    user_env["OTA_USER_PASSWORD"] = DEMO_PASSWORD
+    result = subprocess.run(
+        [
+            str(IOT_PYTHON),
+            "backend/scripts/create_user.py",
+            "--username",
+            DEMO_USERNAME,
+            "--role",
+            "admin",
+        ],
+        cwd=IOT_ROOT,
+        env=user_env,
+        capture_output=True,
+        text=True,
+    )
+    output = f"{result.stdout}\n{result.stderr}"
+    if result.returncode != 0 and "already exists" not in output:
+        raise RuntimeError(f"Could not create the local IoT demo account:\n{output}")
+
+
+def fetch_iot_demo_session() -> dict[str, str]:
+    request = urllib.request.Request(
+        "http://127.0.0.1:8100/api/auth/login",
+        data=json.dumps(
+            {"username": DEMO_USERNAME, "password": DEMO_PASSWORD}
+        ).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:
+        token = json.load(response)["access_token"]
+    return {"token": token, "username": DEMO_USERNAME, "role": "admin"}
+
+
+def prepare_iot_frontend(session: dict[str, str]) -> None:
+    source = IOT_ROOT / "frontend" / "dist"
+    if IOT_FRONTEND_RUNTIME.exists():
+        shutil.rmtree(IOT_FRONTEND_RUNTIME)
+    IOT_FRONTEND_RUNTIME.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(source, IOT_FRONTEND_RUNTIME)
+
+    index_path = IOT_FRONTEND_RUNTIME / "index.html"
+    html = index_path.read_text(encoding="utf-8")
+    stored_session = json.dumps(session, ensure_ascii=False, separators=(",", ":"))
+    bootstrap = (
+        "<meta name=\"apionix-local-demo\" content=\"enabled\">\n"
+        "<script>sessionStorage.setItem('ota.session', "
+        f"{json.dumps(stored_session)});</script>"
+    )
+    index_path.write_text(
+        html.replace("</head>", f"{bootstrap}\n</head>", 1), encoding="utf-8"
+    )
+
+
 def main() -> int:
     required = [
         APK_PYTHON,
         IOT_PYTHON,
         APK_ROOT / "FrontendUI" / "dist" / "index.html",
-        IOT_ROOT / "frontend" / "node_modules",
+        IOT_ROOT / "frontend" / "dist" / "index.html",
     ]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
@@ -68,14 +129,48 @@ def main() -> int:
     apk_env["CELERY_TASK_ALWAYS_EAGER"] = "1"
     iot_env = os.environ.copy()
     iot_env["JWT_SECRET"] = "local-demo-only-secret-2026-08-20-at-least-32-bytes"
-    iot_ui_env = iot_env.copy()
-    iot_ui_env["VITE_BACKEND"] = "http://127.0.0.1:8100"
+
+    try:
+        ensure_iot_demo_user(iot_env)
+    except RuntimeError as exc:
+        print(f"ERROR: {exc}")
+        return 1
 
     start("Apionix portal", 8080, [str(APK_PYTHON), str(ROOT / "serve_static.py"), "--directory", str(ROOT), "--port", "8080", "--bind", "127.0.0.1"], ROOT)
     start("APK frontend", 5173, [str(APK_PYTHON), str(ROOT / "serve_static.py"), "--directory", str(APK_ROOT / "FrontendUI" / "dist"), "--port", "5173", "--bind", "127.0.0.1"], ROOT)
     start("APK API", 8000, [str(APK_PYTHON), "-m", "uvicorn", "apps.api.main:app", "--host", "127.0.0.1", "--port", "8000"], APK_ROOT / "apk-platform", apk_env)
     start("IoT API", 8100, [str(IOT_PYTHON), "-m", "uvicorn", "main:app", "--app-dir", "backend", "--host", "127.0.0.1", "--port", "8100"], IOT_ROOT, iot_env)
-    start("IoT frontend", 5180, [NPM, "run", "dev", "--", "--host", "127.0.0.1", "--port", "5180"], IOT_ROOT / "frontend", iot_ui_env)
+
+    if not wait_http("http://127.0.0.1:8100/docs"):
+        print("ERROR: IoT API did not become ready.")
+        return 1
+    try:
+        prepare_iot_frontend(fetch_iot_demo_session())
+    except Exception as exc:
+        print(f"ERROR: Could not prepare the IoT local demo session: {exc}")
+        return 1
+
+    start(
+        "IoT frontend",
+        5180,
+        [
+            str(IOT_PYTHON),
+            str(ROOT / "serve_static.py"),
+            "--directory",
+            str(IOT_FRONTEND_RUNTIME),
+            "--port",
+            "5180",
+            "--bind",
+            "127.0.0.1",
+            "--proxy-api",
+            "http://127.0.0.1:8100",
+            "--proxy-prefix",
+            "/backend/",
+            "--proxy-strip-prefix",
+            "--spa-fallback",
+        ],
+        ROOT,
+    )
 
     checks = [
         ("Apionix", "http://127.0.0.1:8080/"),
@@ -92,6 +187,7 @@ def main() -> int:
     url = "http://127.0.0.1:8080/"
     print("\nApionix is ready:")
     print(url)
+    print("IoT opens directly in a local demo admin session (no login form).")
     print("Keep this window open. Press Ctrl+C to stop services.\n")
     webbrowser.open(url)
 

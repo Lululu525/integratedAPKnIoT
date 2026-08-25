@@ -3,6 +3,7 @@ Thumbs.db
 .idea/
 .vscode/
 .public-preview/
+.integrated-runtime/
 __pycache__/
 *.pyc
 assets/favicon-preview.png

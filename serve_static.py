@@ -3,6 +3,7 @@
 import argparse
 import functools
 import mimetypes
+from pathlib import Path
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -12,6 +13,7 @@ class StaticHandler(SimpleHTTPRequestHandler):
     proxy_api = None
     proxy_prefix = "/v1/"
     proxy_strip_prefix = False
+    spa_fallback = False
     extensions_map = {
         **SimpleHTTPRequestHandler.extensions_map,
         ".css": "text/css",
@@ -74,6 +76,9 @@ class StaticHandler(SimpleHTTPRequestHandler):
         if self._is_proxy_request():
             self._proxy_request()
             return
+        requested_file = Path(self.translate_path(self.path.split("?", 1)[0]))
+        if self.spa_fallback and not requested_file.exists():
+            self.path = "/index.html"
         super().do_GET()
 
     def do_POST(self) -> None:
@@ -101,6 +106,7 @@ def main() -> None:
     parser.add_argument("--proxy-api")
     parser.add_argument("--proxy-prefix", default="/v1/")
     parser.add_argument("--proxy-strip-prefix", action="store_true")
+    parser.add_argument("--spa-fallback", action="store_true")
     args = parser.parse_args()
 
     mimetypes.add_type("application/javascript", ".js", strict=True)
@@ -108,6 +114,7 @@ def main() -> None:
     StaticHandler.proxy_api = args.proxy_api
     StaticHandler.proxy_prefix = args.proxy_prefix
     StaticHandler.proxy_strip_prefix = args.proxy_strip_prefix
+    StaticHandler.spa_fallback = args.spa_fallback
     handler = functools.partial(StaticHandler, directory=args.directory)
     server = ThreadingHTTPServer((args.bind, args.port), handler)
     print(f"Serving {args.directory} at http://{args.bind}:{args.port}")
