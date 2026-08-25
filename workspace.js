@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusText = document.querySelector("#workspaceStatusText");
   const errorPanel = document.querySelector("#workspaceError");
   const errorText = document.querySelector("#workspaceErrorText");
-  const openExternal = document.querySelector("#openExternal");
   const guide = document.querySelector("#workspaceGuide");
   let loadTimer;
 
@@ -32,12 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.title = `${service.title}｜Apionix`;
   frame.title = service.frameTitle;
   guide.hidden = serviceKey !== "iot";
-
-  document.querySelectorAll("[data-service-link]").forEach((link) => {
-    const active = link.dataset.serviceLink === serviceKey;
-    link.classList.toggle("is-active", active);
-    if (active) link.setAttribute("aria-current", "page");
-  });
 
   function showError(message) {
     window.clearTimeout(loadTimer);
@@ -58,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    openExternal.href = service.url;
     frame.src = service.url;
     loadTimer = window.setTimeout(() => {
       showError(`${service.unavailable} 若服務已啟動，請按「重新連線」。`);
@@ -73,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   frame.addEventListener("error", () => showError(service.unavailable));
-  document.querySelector("#reloadService").addEventListener("click", loadService);
   document.querySelector("#retryService").addEventListener("click", loadService);
 
   loadService();

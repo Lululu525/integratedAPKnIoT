@@ -58,6 +58,8 @@ window.APIONIX_CONFIG = Object.freeze({
 - IoT 前端：5180
 - IoT FastAPI：8100
 
+啟動完成後會自動開啟整合首頁。請保持 `start-local.bat` 的命令視窗開啟；關閉視窗或按下 `Ctrl+C` 會停止由它啟動的服務。啟動器會檢查各服務是否成功回應，避免入口已開啟但 IoT 前後端其實尚未運行。
+
 本機 APK 模式使用 Celery eager 執行分析工作，因此不需要另外啟動 Redis；正式部署仍使用 Celery worker 與 Redis。IoT 系統沿用其來源專案的資料與驗證設定。
 
 ### 只預覽封面
@@ -77,6 +79,7 @@ python -m http.server 8080
 - `iot-system.html`：IoT 系統入口
 - `system.html`：APK／IoT 共用操作殼層
 - `workspace.js`：服務切換、載入狀態與錯誤處理
+- `run_integrated.py`：啟動、檢查並持續監看完整本機服務
 - `config.js`：外部系統網址設定
 - `styles.css`：共用視覺樣式
 - `script.js`：動畫與系統連結初始化
