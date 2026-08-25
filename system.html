@@ -43,31 +43,45 @@
   </header>
 
   <main class="workspace-main">
-    <div class="workspace-status" id="workspaceStatus" role="status" aria-live="polite">
-      <span class="workspace-spinner" aria-hidden="true"></span>
-      <div><strong>正在連接服務</strong><span id="workspaceStatusText">請稍候，系統正在載入。</span></div>
-    </div>
+    <aside class="workspace-guide" id="workspaceGuide" hidden>
+      <p class="workspace-eyebrow">IOT SECURE ACCESS</p>
+      <h1>IoT 管理工作區</h1>
+      <p>登入後即可管理韌體版本、裝置與 OTA 更新。帳號驗證由 IoT 系統處理，Apionix 不會保存您的密碼。</p>
+      <ol class="workspace-guide-steps">
+        <li><b>已有帳號</b><span>輸入 Username 與 Password，按下 Sign In。</span></li>
+        <li><b>第一次使用</b><span>點選登入卡片下方的 Create an account 建立帳號。</span></li>
+        <li><b>完成工作</b><span>可從上方切換 APK 分析，或安全返回 Apionix 首頁。</span></li>
+      </ol>
+      <div class="workspace-security-note"><span aria-hidden="true">✓</span><p><b>安全登入</b><small>韌體發布與裝置資料需要身分驗證。</small></p></div>
+    </aside>
 
-    <iframe
-      id="serviceFrame"
-      class="workspace-frame"
-      title="Apionix 安全服務"
-      allow="clipboard-read; clipboard-write"
-    ></iframe>
-
-    <section class="workspace-error" id="workspaceError" hidden>
-      <div class="workspace-error-icon" aria-hidden="true">!</div>
-      <p class="workspace-eyebrow">CONNECTION NOTICE</p>
-      <h1 id="workspaceErrorTitle">服務暫時無法載入</h1>
-      <p id="workspaceErrorText">請確認對應的前端與後端已啟動，再重新載入。</p>
-      <div class="workspace-error-actions">
-        <button class="btn btn-blue" id="retryService" type="button">重新連線</button>
-        <a class="btn btn-line" href="index.html">返回首頁</a>
+    <section class="workspace-stage">
+      <div class="workspace-status" id="workspaceStatus" role="status" aria-live="polite">
+        <span class="workspace-spinner" aria-hidden="true"></span>
+        <div><strong>正在連接服務</strong><span id="workspaceStatusText">請稍候，系統正在載入。</span></div>
       </div>
-      <details>
-        <summary>查看測試提示</summary>
-        <p>本機整合模式需要同時啟動 Apionix、APK 前後端與 IoT 前後端。可在整合專案執行 <code>start-local.bat</code>。</p>
-      </details>
+
+      <iframe
+        id="serviceFrame"
+        class="workspace-frame"
+        title="Apionix 安全服務"
+        allow="clipboard-read; clipboard-write"
+      ></iframe>
+
+      <section class="workspace-error" id="workspaceError" hidden>
+        <div class="workspace-error-icon" aria-hidden="true">!</div>
+        <p class="workspace-eyebrow">CONNECTION NOTICE</p>
+        <h1 id="workspaceErrorTitle">服務暫時無法載入</h1>
+        <p id="workspaceErrorText">請確認對應的前端與後端已啟動，再重新載入。</p>
+        <div class="workspace-error-actions">
+          <button class="btn btn-blue" id="retryService" type="button">重新連線</button>
+          <a class="btn btn-line" href="index.html">返回首頁</a>
+        </div>
+        <details>
+          <summary>查看測試提示</summary>
+          <p>本機整合模式需要同時啟動 Apionix、APK 前後端與 IoT 前後端。可在整合專案執行 <code>start-local.bat</code>。</p>
+        </details>
+      </section>
     </section>
   </main>
 

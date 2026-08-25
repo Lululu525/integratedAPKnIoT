@@ -25,12 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorPanel = document.querySelector("#workspaceError");
   const errorText = document.querySelector("#workspaceErrorText");
   const openExternal = document.querySelector("#openExternal");
+  const guide = document.querySelector("#workspaceGuide");
   let loadTimer;
 
   document.body.classList.add(service.accentClass);
   document.querySelector("#workspaceTitle").textContent = service.title;
   document.title = `${service.title}｜Apionix`;
   frame.title = service.frameTitle;
+  guide.hidden = serviceKey !== "iot";
 
   document.querySelectorAll("[data-service-link]").forEach((link) => {
     const active = link.dataset.serviceLink === serviceKey;
