@@ -11,26 +11,29 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="embedded-system-page">
-  <header class="site-header nav-animate is-loaded">
+  <header class="site-header nav-animate">
     <div class="container nav-wrap">
-      <a class="brand brand-image-only" href="index.html" aria-label="Apionix 首頁">
+      <a class="brand brand-image-only nav-item-animate" href="index.html#home" aria-label="Apionix 首頁">
         <img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" />
       </a>
+
       <nav class="nav-links nav-item-animate">
         <a href="index.html#home">首頁</a>
         <a href="platform.html">平台介紹</a>
         <div class="nav-dropdown">
-          <a class="nav-dropdown-trigger is-active" href="index.html#services" aria-haspopup="true">核心服務 <span aria-hidden="true">⌄</span></a>
+          <a class="nav-dropdown-trigger" href="index.html#services" aria-haspopup="true">核心服務 <span aria-hidden="true">⌄</span></a>
           <div class="nav-dropdown-menu" aria-label="核心服務選單">
             <a data-apk-frontend href="system.html?service=apk">APK 安全分析</a>
-            <a class="is-current" data-iot-system href="iot-system.html">IoT 裝置檢測</a>
+            <a data-iot-system href="iot-system.html">IoT 裝置檢測</a>
           </div>
         </div>
         <a href="workflow.html">使用流程</a>
         <a href="contact.html">聯絡我們</a>
       </nav>
+
       <div class="nav-actions nav-item-animate">
-        <a class="btn btn-line" href="index.html">返回首頁</a>
+        <a class="btn btn-line" href="platform.html">了解平台</a>
+        <a class="btn btn-blue" href="index.html#services">立即開始</a>
       </div>
     </div>
   </header>

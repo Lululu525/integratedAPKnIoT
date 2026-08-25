@@ -129,6 +129,7 @@ def main() -> int:
     apk_env["CELERY_TASK_ALWAYS_EAGER"] = "1"
     iot_env = os.environ.copy()
     iot_env["JWT_SECRET"] = "local-demo-only-secret-2026-08-20-at-least-32-bytes"
+    iot_env["JWT_EXPIRES_MINUTES"] = "1440"
 
     try:
         ensure_iot_demo_user(iot_env)
