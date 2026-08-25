@@ -47,68 +47,13 @@
     ></iframe>
   </main>
 
-  <dialog class="guest-exit-dialog" id="guest-exit-dialog" aria-labelledby="guest-exit-title">
-    <div class="guest-exit-icon" aria-hidden="true">!</div>
-    <p class="eyebrow">GUEST SESSION</p>
-    <h2 id="guest-exit-title">尚未登入，確定要離開嗎？</h2>
-    <p>如果沒有先登入保存，本次使用與操作記錄可能會消失，之後將無法恢復。</p>
-    <div class="guest-exit-actions">
-      <button class="btn btn-line" id="guest-stay" type="button">繼續使用</button>
-      <button class="btn btn-blue" id="guest-login" type="button">登入並保存</button>
-      <button class="guest-leave-link" id="guest-leave" type="button">不保存並離開</button>
-    </div>
-  </dialog>
-
   <script src="config.js"></script>
   <script src="script.js"></script>
   <script>
-    (() => {
-      const dialog = document.querySelector("#guest-exit-dialog");
-      const frame = document.querySelector(".embedded-system-frame");
-      let pendingDestination = null;
-      let confirmedLeave = false;
-      let isGuestSession = true;
-
-      window.addEventListener("message", (event) => {
-        if (event.origin !== "http://127.0.0.1:5180") return;
-        if (event.data?.type === "apionix:session-state") {
-          isGuestSession = event.data.guest;
-        }
-      });
-
-      document.querySelectorAll(".site-header a").forEach((link) => {
-        link.addEventListener("click", (event) => {
-          const destination = link.href;
-          if (!destination || destination === window.location.href) return;
-          if (!isGuestSession) return;
-          event.preventDefault();
-          pendingDestination = destination;
-          dialog.showModal();
-        });
-      });
-
-      document.querySelector("#guest-stay").addEventListener("click", () => {
-        pendingDestination = null;
-        dialog.close();
-      });
-
-      document.querySelector("#guest-login").addEventListener("click", () => {
-        pendingDestination = null;
-        dialog.close();
-        frame.contentWindow.postMessage("apionix:login-save", "http://127.0.0.1:5180");
-      });
-
-      document.querySelector("#guest-leave").addEventListener("click", () => {
-        confirmedLeave = true;
-        window.location.href = pendingDestination || "index.html";
-      });
-
-      window.addEventListener("beforeunload", (event) => {
-        if (confirmedLeave || !isGuestSession) return;
-        event.preventDefault();
-        event.returnValue = "";
-      });
-    })();
+    window.addEventListener("beforeunload", (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    });
   </script>
 </body>
 </html>
