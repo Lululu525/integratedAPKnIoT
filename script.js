@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const iotSystemUrl = window.APIONIX_CONFIG?.iotSystemUrl;
   if (iotSystemUrl) {
     document.querySelectorAll("[data-iot-system]").forEach((link) => {
-      link.href = iotSystemUrl;
+      link.href = "iot-system.html";
       link.removeAttribute("target");
       link.removeAttribute("rel");
     });
