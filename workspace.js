@@ -29,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let loadTimer;
 
   document.body.classList.add(service.accentClass);
-  document.querySelector("#workspaceTitle").textContent = service.title;
   document.title = `${service.title}｜Apionix`;
   frame.title = service.frameTitle;
   guide.hidden = serviceKey !== "iot";
@@ -63,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     frame.src = service.url;
     loadTimer = window.setTimeout(() => {
       showError(`${service.unavailable} 若服務已啟動，請按「重新連線」。`);
-    }, 15000);
+    }, 30000);
   }
 
   frame.addEventListener("load", () => {

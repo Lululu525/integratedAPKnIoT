@@ -12,37 +12,14 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="workspace-page">
-  <header class="workspace-header">
-    <div class="workspace-brand-group">
-      <a class="workspace-brand" href="index.html" aria-label="返回 Apionix 首頁">
-        <img src="assets/apionix-wordmark.png" alt="Apionix" />
-      </a>
-      <span class="workspace-divider" aria-hidden="true"></span>
-      <div class="workspace-context">
-        <span class="workspace-eyebrow">SECURITY WORKSPACE</span>
-        <strong id="workspaceTitle">載入服務中</strong>
-      </div>
-    </div>
-
-    <nav class="workspace-switcher" aria-label="切換安全服務">
-      <a class="workspace-service" data-service-link="apk" href="system.html?service=apk">
-        <span class="service-dot apk-dot" aria-hidden="true"></span>
-        APK 分析
-      </a>
-      <a class="workspace-service" data-service-link="iot" href="system.html?service=iot">
-        <span class="service-dot iot-dot" aria-hidden="true"></span>
-        IoT 管理
-      </a>
-    </nav>
-
-    <div class="workspace-actions">
-      <button class="workspace-icon-button" id="reloadService" type="button" aria-label="重新載入服務" title="重新載入服務">↻</button>
-      <a class="workspace-open-button" id="openExternal" href="#" target="_blank" rel="noopener noreferrer">另開視窗 <span aria-hidden="true">↗</span></a>
-      <a class="workspace-home-button" href="index.html"><span aria-hidden="true">←</span> 回首頁</a>
-    </div>
-  </header>
-
   <main class="workspace-main">
+    <nav class="workspace-floating-nav" aria-label="工作區快速操作">
+      <a data-service-link="apk" href="system.html?service=apk"><span class="service-dot apk-dot" aria-hidden="true"></span>APK</a>
+      <a data-service-link="iot" href="system.html?service=iot"><span class="service-dot iot-dot" aria-hidden="true"></span>IoT</a>
+      <button id="reloadService" type="button" aria-label="重新載入服務" title="重新載入服務">↻</button>
+      <a id="openExternal" href="#" target="_blank" rel="noopener noreferrer" aria-label="另開目前服務" title="另開目前服務">↗</a>
+      <a class="workspace-floating-home" href="index.html">回首頁</a>
+    </nav>
     <aside class="workspace-guide" id="workspaceGuide" hidden>
       <p class="workspace-eyebrow">IOT SECURE ACCESS</p>
       <h1>IoT 管理工作區</h1>
@@ -50,7 +27,7 @@
       <ol class="workspace-guide-steps">
         <li><b>已有帳號</b><span>輸入 Username 與 Password，按下 Sign In。</span></li>
         <li><b>第一次使用</b><span>點選登入卡片下方的 Create an account 建立帳號。</span></li>
-        <li><b>完成工作</b><span>可從上方切換 APK 分析，或安全返回 Apionix 首頁。</span></li>
+        <li><b>完成工作</b><span>可使用右上角控制列切換 APK 分析，或安全返回 Apionix 首頁。</span></li>
       </ol>
       <div class="workspace-security-note"><span aria-hidden="true">✓</span><p><b>安全登入</b><small>韌體發布與裝置資料需要身分驗證。</small></p></div>
     </aside>
