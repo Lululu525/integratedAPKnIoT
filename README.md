@@ -2,6 +2,8 @@
 
 Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個產品入口。兩套來源系統維持各自的 GitHub 儲存庫與前後端架構，本專案僅負責一致的導航、服務切換與啟動流程。
 
+整合專案另提供 APK 與 IoT 共用的帳號服務。使用者可不登入直接使用訪客模式，也可建立一組 Apionix 帳號，在兩個服務頁共用登入狀態與活動紀錄。帳號、PBKDF2 密碼雜湊、工作階段及活動資料儲存在本機 `.integrated-runtime/accounts.db`，不會寫入兩個來源專案。
+
 ## 整合操作流程
 
 APK 與 IoT 入口會載入兩個來源專案的真正前端。IoT 頁面保留 Apionix 導覽列，下方直接嵌入原生 Dashboard；本機完整展示模式會建立受控的 Demo 工作階段，因此使用者不必先輸入帳號密碼。
@@ -61,6 +63,7 @@ window.APIONIX_CONFIG = Object.freeze({
 - APK FastAPI：8000
 - IoT 前端：5180
 - IoT FastAPI：8100
+- Apionix 共用帳號 API：8200
 
 啟動完成後會自動開啟整合首頁。請保持 `start-local.bat` 的命令視窗開啟；關閉視窗或按下 `Ctrl+C` 會停止由它啟動的服務。啟動器會檢查各服務是否成功回應，避免入口已開啟但 IoT 前後端其實尚未運行。
 
@@ -83,6 +86,10 @@ python -m http.server 8080
 - `iot-system.html`：IoT 系統入口
 - `system.html`：APK／IoT 共用操作殼層
 - `workspace.js`：服務切換、載入狀態與錯誤處理
+- `account_api.py`：共用帳號、工作階段與活動紀錄 API
+- `account.js`：各整合頁共用的登入狀態與導覽列控制
+- `auth.html`：註冊與登入頁
+- `user.html`：使用者資料與跨服務活動頁
 - `run_integrated.py`：啟動、檢查並持續監看完整本機服務
 - `config.js`：外部系統網址設定
 - `styles.css`：共用視覺樣式

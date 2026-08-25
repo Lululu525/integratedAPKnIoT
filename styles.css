@@ -685,7 +685,7 @@ img{max-width:100%;display:block}
 .workspace-icon-button{width:40px;border:1px solid #d6e0ec;background:#fff;color:#344964;font-size:1.25rem}.workspace-open-button,.workspace-home-button{display:flex;align-items:center;gap:7px;padding:0 14px}
 .workspace-open-button{border:1px solid #d6e0ec;color:#344964;background:#fff}.workspace-home-button{color:#fff;background:#102747}
 .workspace-icon-button:hover,.workspace-open-button:hover{border-color:#8eb5f4;color:#1763e8}.workspace-home-button:hover{background:#1763e8}
-.workspace-main{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;height:100vh;padding:10px;background:#dfe7f1}
+.workspace-main{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:10px;height:calc(100vh - 93px);padding:10px;background:#dfe7f1}
 .workspace-iot .workspace-main{grid-template-columns:310px minmax(0,1fr)}
 .workspace-stage{position:relative;min-width:0;min-height:0}
 .workspace-guide{overflow:auto;padding:30px 26px;border:1px solid #d6e3eb;border-radius:15px;background:linear-gradient(155deg,#f7fffc 0,#fff 58%);box-shadow:0 5px 18px rgba(16,36,64,.07)}
@@ -703,3 +703,35 @@ img{max-width:100%;display:block}
 @media(max-width:1050px){.workspace-iot .workspace-main{grid-template-columns:270px minmax(0,1fr)}.workspace-guide{padding:24px 20px}}
 @media(max-width:760px){.workspace-iot .workspace-main{grid-template-columns:minmax(0,1fr)}.workspace-guide{display:none}}
 @media(max-width:680px){.workspace-main{padding:5px}.workspace-frame,.workspace-status,.workspace-error{border-radius:10px}.workspace-status,.workspace-error{inset:5px}.workspace-error{padding:24px 18px}.workspace-error-actions{flex-direction:column}.workspace-error-actions .btn{width:100%}}
+
+/* Shared account and user center */
+.account-nav-actions{min-width:210px;justify-content:flex-end}
+.account-user-link{display:flex;align-items:center;gap:10px;font-weight:800;color:#142849}
+.account-avatar{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;color:#fff;background:linear-gradient(135deg,#1d72ff,#6246e8);font-weight:900}
+.account-avatar.large{width:76px;height:76px;font-size:1.7rem}
+.account-logout{cursor:pointer;font:inherit}
+.account-page{min-height:100vh;background:radial-gradient(circle at 80% 15%,rgba(29,114,255,.14),transparent 28%),#eef4fb}
+.account-main{min-height:calc(100vh - 93px);display:grid;place-items:center;padding:48px 24px}
+.account-card{width:min(100%,520px);padding:46px;border-radius:30px;background:#fff;border:1px solid rgba(8,18,33,.1);box-shadow:0 28px 70px rgba(13,42,82,.14)}
+.account-card h1{margin:4px 0 8px;font-size:2.2rem;line-height:1.2}
+.account-card>p:not(.eyebrow){margin:0 0 28px;color:#61728c}
+.account-card form{display:grid;gap:18px}
+.account-card label{display:grid;gap:8px;color:#142849;font-weight:800}
+.account-card input{width:100%;box-sizing:border-box;padding:15px 17px;border:1px solid #cad8ea;border-radius:14px;background:#f8fbff;color:#0b1930;font:inherit;outline:none}
+.account-card input:focus{border-color:#1d72ff;box-shadow:0 0 0 4px rgba(29,114,255,.11)}
+.account-submit{width:100%;border:0;cursor:pointer;font:inherit}
+.account-submit:disabled{opacity:.6;cursor:wait}
+.account-error{min-height:24px;margin:0!important;color:#c83e3e!important;font-weight:700}
+.account-mode-switch{display:block;margin:20px auto 0;border:0;background:none;color:#1768e8;cursor:pointer;font:inherit;font-weight:800}
+.user-main{width:min(calc(100% - 48px),1180px);margin:0 auto;padding:58px 0 90px}
+.user-hero{display:flex;align-items:center;gap:22px;margin-bottom:30px}
+.user-hero h1{margin:0;font-size:2.5rem}
+.user-hero p{margin:0;color:#60718c}
+.user-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:24px}
+.user-panel{padding:32px;border-radius:26px;background:#fff;border:1px solid #d4dfed;box-shadow:0 18px 46px rgba(13,42,82,.08)}
+.user-panel h2{margin:0 0 10px}
+.user-service-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.activity-list{display:grid;gap:10px;margin-top:18px}
+.activity-item{display:grid;grid-template-columns:60px 1fr auto;gap:14px;align-items:center;padding:14px 16px;border-radius:14px;background:#f3f7fc}
+.activity-item b{color:#1768e8}.activity-item time{color:#6d7e98;font-size:.9rem}
+@media(max-width:800px){.user-grid{grid-template-columns:1fr}.activity-item{grid-template-columns:50px 1fr}.activity-item time{grid-column:2}.account-nav-actions{min-width:0}}

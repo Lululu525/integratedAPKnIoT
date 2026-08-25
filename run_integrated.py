@@ -95,37 +95,20 @@ def prepare_iot_frontend(session: dict[str, str]) -> None:
         "<script>"
         "sessionStorage.setItem('ota.session', "
         f"{json.dumps(stored_session)});"
-        "function openApionixAuth(mode) {"
-        "sessionStorage.removeItem('ota.session');"
-        "location.href = '/login?mode=' + mode;"
+        "function fixApionixBackLink() {"
+        "var back = document.querySelector('.header-back-link');"
+        "if (!back || back.dataset.apionixFixed === 'ready') return;"
+        "back.dataset.apionixFixed = 'ready';"
+        "back.href = '/';"
+        "back.onclick = function(event) { event.preventDefault(); location.href = '/'; };"
         "}"
-        "function installApionixGuestActions() {"
-        "var auth = document.querySelector('.header-auth');"
-        "if (!auth || auth.dataset.apionixGuestActions === 'ready') return;"
-        "auth.dataset.apionixGuestActions = 'ready';"
-        "auth.innerHTML = "
-        "\"<button type='button' class='auth-btn apionix-register-btn'>註冊</button>\" + "
-        "\"<button type='button' class='auth-btn login-btn'>登入</button>\";"
-        "auth.querySelector('.apionix-register-btn').onclick = function() { openApionixAuth('register'); };"
-        "auth.querySelector('.login-btn').onclick = function() { openApionixAuth('login'); };"
-        "}"
-        "new MutationObserver(installApionixGuestActions).observe(document.documentElement, {childList:true, subtree:true});"
-        "addEventListener('DOMContentLoaded', installApionixGuestActions);"
-        "if (new URLSearchParams(location.search).get('mode') === 'register') {"
-        "var registerTimer = setInterval(function() {"
-        "var button = Array.from(document.querySelectorAll('button')).find(function(item) {"
-        "return item.textContent.trim() === 'Create an account';"
-        "});"
-        "if (button) { button.click(); clearInterval(registerTimer); }"
-        "}, 100);"
-        "}"
+        "new MutationObserver(fixApionixBackLink).observe(document.documentElement, {childList:true, subtree:true});"
+        "addEventListener('DOMContentLoaded', fixApionixBackLink);"
         "</script>"
     )
     guest_styles = (
         "<style>"
-        ".header-auth{gap:10px!important}"
-        ".apionix-register-btn{color:#1768e8!important;background:#edf4ff!important;"
-        "border:1px solid #b9d3ff!important}"
+        ".header-auth{display:none!important}"
         "</style>"
     )
     index_path.write_text(
@@ -140,6 +123,7 @@ def main() -> int:
         IOT_PYTHON,
         APK_ROOT / "FrontendUI" / "dist" / "index.html",
         IOT_ROOT / "frontend" / "dist" / "index.html",
+        ROOT / "account_api.py",
     ]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
@@ -171,7 +155,41 @@ def main() -> int:
         print(f"ERROR: {exc}")
         return 1
 
-    start("Apionix portal", 8080, [str(APK_PYTHON), str(ROOT / "serve_static.py"), "--directory", str(ROOT), "--port", "8080", "--bind", "127.0.0.1"], ROOT)
+    start(
+        "Shared account API",
+        8200,
+        [
+            str(APK_PYTHON),
+            "-m",
+            "uvicorn",
+            "account_api:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8200",
+        ],
+        ROOT,
+    )
+    start(
+        "Apionix portal",
+        8080,
+        [
+            str(APK_PYTHON),
+            str(ROOT / "serve_static.py"),
+            "--directory",
+            str(ROOT),
+            "--port",
+            "8080",
+            "--bind",
+            "127.0.0.1",
+            "--proxy-api",
+            "http://127.0.0.1:8200",
+            "--proxy-prefix",
+            "/account-api/",
+            "--proxy-strip-prefix",
+        ],
+        ROOT,
+    )
     start("APK frontend", 5173, [str(APK_PYTHON), str(ROOT / "serve_static.py"), "--directory", str(APK_ROOT / "FrontendUI" / "dist"), "--port", "5173", "--bind", "127.0.0.1"], ROOT)
     start("APK API", 8000, [str(APK_PYTHON), "-m", "uvicorn", "apps.api.main:app", "--host", "127.0.0.1", "--port", "8000"], APK_ROOT / "apk-platform", apk_env)
     start("IoT API", 8100, [str(IOT_PYTHON), "-m", "uvicorn", "main:app", "--app-dir", "backend", "--host", "127.0.0.1", "--port", "8100"], IOT_ROOT, iot_env)
@@ -209,6 +227,7 @@ def main() -> int:
 
     checks = [
         ("Apionix", "http://127.0.0.1:8080/"),
+        ("Shared account API", "http://127.0.0.1:8080/account-api/docs"),
         ("APK", "http://127.0.0.1:5173/"),
         ("IoT", "http://127.0.0.1:5180/"),
         ("IoT API proxy", "http://127.0.0.1:5180/backend/docs"),

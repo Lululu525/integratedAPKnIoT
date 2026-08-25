@@ -31,10 +31,7 @@
         <a href="contact.html">聯絡我們</a>
       </nav>
 
-      <div class="nav-actions nav-item-animate">
-        <a class="btn btn-line" href="platform.html">了解平台</a>
-        <a class="btn btn-blue" href="index.html#services">立即開始</a>
-      </div>
+      <div class="nav-actions nav-item-animate account-nav-actions" data-account-actions></div>
     </div>
   </header>
 
@@ -49,7 +46,9 @@
 
   <script src="config.js"></script>
   <script src="script.js"></script>
+  <script src="account.js"></script>
   <script>
+    APIONIX_ACCOUNT.recordActivity("iot");
     window.addEventListener("beforeunload", (event) => {
       event.preventDefault();
       event.returnValue = "";

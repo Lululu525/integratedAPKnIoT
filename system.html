@@ -12,6 +12,27 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="workspace-page">
+  <header class="site-header nav-animate is-loaded">
+    <div class="container nav-wrap">
+      <a class="brand brand-image-only nav-item-animate" href="index.html#home" aria-label="Apionix 首頁">
+        <img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" />
+      </a>
+      <nav class="nav-links nav-item-animate">
+        <a href="index.html#home">首頁</a>
+        <a href="platform.html">平台介紹</a>
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-trigger" href="index.html#services">核心服務 <span>⌄</span></a>
+          <div class="nav-dropdown-menu">
+            <a data-apk-frontend href="system.html?service=apk">APK 安全分析</a>
+            <a data-iot-system href="iot-system.html">IoT 裝置檢測</a>
+          </div>
+        </div>
+        <a href="workflow.html">使用流程</a>
+        <a href="contact.html">聯絡我們</a>
+      </nav>
+      <div class="nav-actions nav-item-animate account-nav-actions" data-account-actions></div>
+    </div>
+  </header>
   <main class="workspace-main">
     <aside class="workspace-guide" id="workspaceGuide" hidden>
       <p class="workspace-eyebrow">IOT SECURE ACCESS</p>
@@ -56,6 +77,14 @@
   </main>
 
   <script src="config.js"></script>
+  <script src="script.js"></script>
+  <script src="account.js"></script>
   <script src="workspace.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const service = new URLSearchParams(location.search).get("service") === "iot" ? "iot" : "apk";
+      APIONIX_ACCOUNT.recordActivity(service);
+    });
+  </script>
 </body>
 </html>

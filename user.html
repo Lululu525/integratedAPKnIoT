@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="assets/apionix-phoenix-favicon.png?v=2" />
+  <title>使用者中心｜Apionix</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="account-page">
+  <header class="site-header is-loaded">
+    <div class="container nav-wrap">
+      <a class="brand brand-image-only" href="index.html"><img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" /></a>
+      <div class="nav-actions" data-account-actions></div>
+    </div>
+  </header>
+  <main class="user-main">
+    <section class="user-hero">
+      <div class="account-avatar large" id="profileAvatar">U</div>
+      <div><p class="eyebrow">USER CENTER</p><h1 id="profileName">使用者中心</h1><p id="profileEmail"></p></div>
+    </section>
+    <section class="user-grid">
+      <article class="user-panel">
+        <h2>共用服務</h2>
+        <p>同一個 Apionix 帳號可在兩個安全服務中使用並保存活動紀錄。</p>
+        <div class="user-service-links">
+          <a class="btn btn-blue" href="system.html?service=apk">APK 安全分析</a>
+          <a class="btn btn-line" href="iot-system.html">IoT 裝置管理</a>
+        </div>
+      </article>
+      <article class="user-panel">
+        <h2>最近活動</h2>
+        <div id="activityList" class="activity-list"><p>正在載入活動紀錄…</p></div>
+      </article>
+    </section>
+  </main>
+  <script src="account.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const [{ user }, { items }] = await Promise.all([
+          APIONIX_ACCOUNT.request("/auth/me"),
+          APIONIX_ACCOUNT.request("/activity")
+        ]);
+        profileName.textContent = user.username;
+        profileEmail.textContent = `${user.email} · 建立於 ${new Date(user.created_at).toLocaleDateString("zh-TW")}`;
+        profileAvatar.textContent = user.username.slice(0, 1).toUpperCase();
+        activityList.innerHTML = items.length
+          ? items.map(item => `<div class="activity-item"><b>${item.service.toUpperCase()}</b><span>${item.action}</span><time>${new Date(item.created_at).toLocaleString("zh-TW")}</time></div>`).join("")
+          : "<p>目前沒有活動紀錄。進入 APK 或 IoT 服務後會顯示在這裡。</p>";
+      } catch {
+        location.href = "auth.html?mode=login";
+      }
+    });
+  </script>
+</body>
+</html>
