@@ -95,10 +95,42 @@ def prepare_iot_frontend(session: dict[str, str]) -> None:
         "<script>"
         "sessionStorage.setItem('ota.session', "
         f"{json.dumps(stored_session)});"
+        "function openApionixAuth(mode) {"
+        "sessionStorage.removeItem('ota.session');"
+        "location.href = '/login?mode=' + mode;"
+        "}"
+        "function installApionixGuestActions() {"
+        "var auth = document.querySelector('.header-auth');"
+        "if (!auth || auth.dataset.apionixGuestActions === 'ready') return;"
+        "auth.dataset.apionixGuestActions = 'ready';"
+        "auth.innerHTML = "
+        "\"<button type='button' class='auth-btn apionix-register-btn'>註冊</button>\" + "
+        "\"<button type='button' class='auth-btn login-btn'>登入</button>\";"
+        "auth.querySelector('.apionix-register-btn').onclick = function() { openApionixAuth('register'); };"
+        "auth.querySelector('.login-btn').onclick = function() { openApionixAuth('login'); };"
+        "}"
+        "new MutationObserver(installApionixGuestActions).observe(document.documentElement, {childList:true, subtree:true});"
+        "addEventListener('DOMContentLoaded', installApionixGuestActions);"
+        "if (new URLSearchParams(location.search).get('mode') === 'register') {"
+        "var registerTimer = setInterval(function() {"
+        "var button = Array.from(document.querySelectorAll('button')).find(function(item) {"
+        "return item.textContent.trim() === 'Create an account';"
+        "});"
+        "if (button) { button.click(); clearInterval(registerTimer); }"
+        "}, 100);"
+        "}"
         "</script>"
     )
+    guest_styles = (
+        "<style>"
+        ".header-auth{gap:10px!important}"
+        ".apionix-register-btn{color:#1768e8!important;background:#edf4ff!important;"
+        "border:1px solid #b9d3ff!important}"
+        "</style>"
+    )
     index_path.write_text(
-        html.replace("</head>", f"{bootstrap}\n</head>", 1), encoding="utf-8"
+        html.replace("</head>", f"{guest_styles}\n{bootstrap}\n</head>", 1),
+        encoding="utf-8",
     )
 
 
