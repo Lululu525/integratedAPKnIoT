@@ -1,0 +1,31 @@
+name: Lint
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --group dev
+
+      - name: black
+        run: uv run black --check .
+
+      - name: ruff
+        run: uv run ruff check .
+
+      - name: clang-format
+        run: |
+          find esp32 -name '*.c' -o -name '*.cc' -o -name '*.cpp' \
+                     -o -name '*.h' -o -name '*.hpp' -o -name '*.ino' | \
+            xargs -r uv run clang-format --dry-run --Werror
+
+      - name: editorconfig-checker
+        run: uv run ec

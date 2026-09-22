@@ -1,0 +1,38 @@
+.key-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.key-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.key-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* A PEM is fixed-width lines that must not be re-wrapped by the browser: a
+soft wrap that survives a copy turns into a key the server cannot parse. */
+.key-input {
+  white-space: pre;
+  overflow-x: auto;
+  resize: vertical;
+}
+
+.key-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* The card is a flex column, so a lone button stretches the full width of it
+and reads as the card's primary action. This one only reopens the form. */
+.key-reopen {
+  align-self: flex-start;
+}

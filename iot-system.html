@@ -4,78 +4,55 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/png" href="assets/apionix-phoenix-favicon.png?v=2" />
-  <link rel="shortcut icon" href="favicon.ico?v=2" />
-  <title>Apionix｜IoT 管理系統</title>
+  <title>Apionix｜IoT 裝置檢測</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="system-page">
-  <header class="site-header nav-animate is-loaded">
+<body class="embedded-system-page">
+  <header class="site-header nav-animate">
     <div class="container nav-wrap">
-      <a class="brand brand-image-only" href="index.html" aria-label="Apionix 首頁">
+      <a class="brand brand-image-only nav-item-animate" href="index.html#home" aria-label="Apionix 首頁">
         <img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" />
       </a>
+
       <nav class="nav-links nav-item-animate">
         <a href="index.html#home">首頁</a>
-        <a href="index.html#services">核心服務</a>
-        <a data-apk-frontend href="http://127.0.0.1:5173">APK 系統</a>
-        <a href="iot-system.html">IoT 系統</a>
+        <a href="platform.html">平台介紹</a>
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-trigger" href="index.html#services" aria-haspopup="true">核心服務 <span aria-hidden="true">⌄</span></a>
+          <div class="nav-dropdown-menu" aria-label="核心服務選單">
+            <a data-apk-frontend href="system.html?service=apk">APK 安全分析</a>
+            <a data-iot-system href="iot-system.html">IoT 裝置檢測</a>
+          </div>
+        </div>
+        <a href="workflow.html">使用流程</a>
+        <a href="contact.html">聯絡我們</a>
       </nav>
-      <div class="nav-actions nav-item-animate">
-        <a class="btn btn-line" href="index.html">返回首頁</a>
-      </div>
+
+      <div class="nav-actions nav-item-animate account-nav-actions" data-account-actions></div>
     </div>
   </header>
 
-  <main class="system-main">
-    <section class="system-hero iot-system-hero">
-      <div class="container system-hero-grid">
-        <div class="reveal is-visible">
-          <p class="eyebrow">FIRMWARE & DEVICE MANAGEMENT</p>
-          <h1 class="system-title">IoT 管理系統</h1>
-          <p class="system-text">集中查看韌體版本、OTA 更新狀態與裝置連線資訊，協助團隊掌握 IoT 裝置端的部署與營運狀態。</p>
-          <div class="system-actions">
-            <label class="upload-button green">
-              上傳韌體檔案
-              <input type="file" accept=".bin,.hex" />
-            </label>
-            <a class="btn btn-blue" href="#devices">查看裝置狀態</a>
-          </div>
-        </div>
-        <div class="system-panel reveal is-visible">
-          <h3>裝置狀態</h3>
-          <div class="status-row"><span>Firmware</span><b>v1.2.3</b></div>
-          <div class="status-row"><span>Signature</span><b class="ok">Verified</b></div>
-          <div class="status-row"><span>Online Devices</span><b>8</b></div>
-          <div class="status-row"><span>Offline Devices</span><b class="warn">2</b></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="system-content" id="devices">
-      <div class="container dashboard-grid">
-        <article class="dashboard-card">
-          <h3>韌體版本管理</h3>
-          <p>查看目前韌體版本、Build、Hash 與 OTA 更新狀態。</p>
-        </article>
-        <article class="dashboard-card">
-          <h3>簽章驗證</h3>
-          <p>確認韌體簽章與 Hash 是否通過驗證，降低未授權更新風險。</p>
-        </article>
-        <article class="dashboard-card">
-          <h3>裝置連線監控</h3>
-          <p>掌握裝置在線、離線與最後同步時間，快速發現異常狀態。</p>
-        </article>
-        <article class="dashboard-card">
-          <h3>管理摘要</h3>
-          <p>將韌體與裝置狀態整理成摘要，方便後續追蹤與展示。</p>
-        </article>
-      </div>
-    </section>
+  <main class="embedded-system-main" aria-label="IoT 裝置管理系統">
+    <iframe
+      class="embedded-system-frame"
+      src="http://127.0.0.1:5180/"
+      title="IoT 韌體與裝置管理 Dashboard"
+      allow="clipboard-read; clipboard-write"
+    ></iframe>
   </main>
+
   <script src="config.js"></script>
   <script src="script.js"></script>
+  <script src="account.js"></script>
+  <script>
+    APIONIX_ACCOUNT.recordActivity("iot");
+    window.addEventListener("beforeunload", (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    });
+  </script>
 </body>
 </html>

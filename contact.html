@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="assets/apionix-phoenix-favicon.png?v=2" />
+  <title>聯絡我們｜Apionix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="contact-page">
+  <header class="site-header nav-animate is-loaded">
+    <div class="container nav-wrap">
+      <a class="brand brand-image-only" href="index.html" aria-label="Apionix 首頁"><img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" /></a>
+      <nav class="nav-links nav-item-animate">
+        <a href="index.html">首頁</a><a href="platform.html">平台介紹</a>
+        <div class="nav-dropdown"><a class="nav-dropdown-trigger" href="index.html#services" aria-haspopup="true">核心服務 <span aria-hidden="true">⌄</span></a><div class="nav-dropdown-menu" aria-label="核心服務選單"><a data-apk-frontend href="http://127.0.0.1:5173">APK 安全分析</a><a data-iot-system href="system.html?service=iot">IoT 裝置檢測</a></div></div>
+        <a href="workflow.html">使用流程</a><a class="is-active" href="contact.html">聯絡我們</a>
+      </nav>
+      <div class="nav-actions nav-item-animate"><a class="btn btn-line" href="platform.html">了解平台</a><a class="btn btn-blue" href="#inquiry-form">聯絡團隊</a></div>
+    </div>
+  </header>
+  <main>
+    <section class="contact-cover">
+      <img src="assets/product-family.png" alt="智慧門鎖與 IoT 裝置" /><div class="contact-cover-overlay"></div>
+      <div class="container contact-cover-content"><p class="eyebrow">CONTACT</p><h1>聯絡我們</h1><p>想了解 APK 安全分析、IoT 裝置整合或專題合作，歡迎留下需求。</p></div>
+    </section>
+    <section class="contact-form-section" id="inquiry-form"><div class="container">
+      <form class="inquiry-form" onsubmit="event.preventDefault(); document.getElementById('form-note').hidden = false;">
+        <div class="inquiry-grid">
+          <label>姓名<input name="name" type="text" placeholder="請輸入您的姓名" required /></label>
+          <label>聯絡電話<input name="phone" type="tel" placeholder="請輸入聯絡電話" /></label>
+          <label>電子信箱<input name="email" type="email" placeholder="請輸入電子信箱" required /></label>
+          <label>單位／公司<input name="organization" type="text" placeholder="請輸入學校、單位或公司" /></label>
+          <label>合作類型<select name="service"><option>APK 安全分析</option><option>IoT 裝置與韌體</option><option>平台整合</option><option>其他合作</option></select></label>
+          <label>預計時程<input name="timeline" type="text" placeholder="例如：Demo、測試或上線日期" /></label>
+        </div>
+        <label class="inquiry-message">需求說明<textarea name="message" placeholder="請描述測試需求、使用情境或合作想法" required></textarea></label>
+        <div class="inquiry-submit"><button class="btn btn-blue" type="submit">送出詢問</button><p id="form-note" hidden>已收到表單內容。此頁目前為展示版本，正式寄送功能尚未啟用。</p></div>
+      </form>
+    </div></section>
+  </main>
+  <footer class="footer contact-footer"><div class="container contact-footer-grid">
+    <div><a class="brand footer-brand brand-image-only" href="index.html"><img class="brand-logo-img footer-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" /></a><p>從 App 到裝置，建立清楚、可執行的產品安全視圖。</p><strong>Secure the connected future.</strong></div>
+    <div><h4>平台</h4><a href="platform.html">平台介紹</a><a href="workflow.html">使用流程</a><a href="contact.html">聯絡我們</a></div>
+    <div><h4>核心服務</h4><a data-apk-frontend href="http://127.0.0.1:5173">APK 安全分析</a><a data-iot-system href="system.html?service=iot">IoT 裝置檢測</a></div>
+  </div><div class="container footer-bottom">© 2026 Apionix</div></footer>
+  <script src="config.js"></script><script src="script.js"></script>
+</body>
+</html>

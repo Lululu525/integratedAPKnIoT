@@ -1,0 +1,67 @@
+[project]
+name = "esp-firmware-over-the-air"
+version = "0.1.0"
+description = "ESP32 Firmware Over-The-Air update system"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "cryptography>=49.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.13.0",
+    "python-multipart>=0.0.9",
+    "jinja2>=3.1.0",
+    "pyjwt>=2.13.0",
+    "bcrypt>=5.0.0",
+    "python-dotenv>=1.2.2",
+    "fastapi-users[sqlalchemy]>=15.0.5",
+]
+
+[dependency-groups]
+dev = [
+    "black>=24.0.0",
+    "ruff>=0.6.0",
+    "pre-commit>=3.6.0",
+    "clang-format>=19.0.0",
+    "pytest>=8.0.0",
+    "httpx>=0.28.1",
+    "editorconfig-checker>=3.6.1",
+    "pytest-asyncio>=1.4.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["backend"]
+testpaths = ["backend/tests"]
+# The database adapter fastapi-users reads through is async because the library
+# awaits it, so the tests for it are too. Auto mode rather than a marker on
+# each: nothing in this suite uses a different async framework.
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+indent-width = 4
+
+[tool.ruff.lint]
+# A sane default rule set. E/F are pycodestyle and pyflakes, I sorts imports.
+select = ["E", "F", "I", "W", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection markers are meant to live in argument defaults;
+# treat them as immutable so B008 does not flag the framework's own idiom.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.File",
+    "fastapi.Form",
+    "fastapi.Query",
+    "fastapi.Header",
+    "fastapi.Path",
+    "fastapi.Body",
+    "fastapi.Cookie",
+]

@@ -1,23 +1,64 @@
 $ErrorActionPreference = "Stop"
 
+# Codex and some Windows launchers can expose both Path and PATH.  PowerShell's
+# Start-Process treats them as duplicate dictionary keys, so normalize only the
+# current process environment before starting npm, Python, and cloudflared.
+$processPath = $env:Path
+[Environment]::SetEnvironmentVariable("PATH", $null, "Process")
+[Environment]::SetEnvironmentVariable("Path", $processPath, "Process")
+
 $portalRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $platformRoot = Join-Path (Split-Path -Parent $portalRoot) "apk-analysis-platform"
+$iotRoot = Join-Path $portalRoot "services\iot"
 $pythonExe = Join-Path $platformRoot ".venv\Scripts\python.exe"
+$iotPythonExe = Join-Path $iotRoot ".venv\Scripts\python.exe"
 $staticServer = Join-Path $portalRoot "serve_static.py"
 $cloudflaredExe = (Get-Command cloudflared.exe -ErrorAction Stop).Source
 $previewRoot = Join-Path $portalRoot ".public-preview"
 $frontendPreview = Join-Path $previewRoot "frontend"
+$iotFrontendPreview = Join-Path $previewRoot "iot-frontend"
 $portalPreview = Join-Path $previewRoot "portal"
 
 if (-not (Test-Path $pythonExe)) {
     throw "APK Analysis Platform virtual environment was not found: $pythonExe"
 }
+if (-not (Test-Path $iotPythonExe)) {
+    Write-Host "Installing the bundled IoT backend dependencies..."
+    $env:UV_CACHE_DIR = Join-Path $portalRoot ".integrated-runtime\uv-cache"
+    $env:UV_PYTHON = $pythonExe
+    $env:UV_PYTHON_DOWNLOADS = "never"
+    $syncProcess = Start-Process -FilePath "uv.exe" -ArgumentList "sync","--frozen","--no-dev" -WorkingDirectory $iotRoot -Wait -PassThru -NoNewWindow
+    if ($syncProcess.ExitCode -ne 0) {
+        throw "IoT backend dependency installation failed."
+    }
+}
 
 $frontendRoot = Join-Path $platformRoot "FrontendUI"
-Write-Host "Building the latest APK frontend..."
-$buildProcess = Start-Process -FilePath "npm.cmd" -ArgumentList "run","build" -WorkingDirectory $frontendRoot -Wait -PassThru -NoNewWindow
-if ($buildProcess.ExitCode -ne 0) {
-    throw "Frontend build failed. Fix the build error before creating public links."
+$iotFrontendRoot = Join-Path $iotRoot "frontend"
+if ($env:SKIP_FRONTEND_BUILD -eq "1") {
+    Write-Host "Using the existing APK frontend build..."
+    if (-not (Test-Path (Join-Path $frontendRoot "dist\index.html"))) {
+        throw "Frontend dist was not found. Run npm.cmd run build first."
+    }
+} else {
+    Write-Host "Building the latest APK frontend..."
+    $buildProcess = Start-Process -FilePath "npm.cmd" -ArgumentList "run","build" -WorkingDirectory $frontendRoot -Wait -PassThru -NoNewWindow
+    if ($buildProcess.ExitCode -ne 0) {
+        throw "Frontend build failed. Fix the build error before creating public links."
+    }
+}
+
+if ($env:SKIP_FRONTEND_BUILD -eq "1") {
+    Write-Host "Using the existing IoT frontend build..."
+    if (-not (Test-Path (Join-Path $iotFrontendRoot "dist\index.html"))) {
+        throw "IoT frontend dist was not found. Run npm.cmd run build first."
+    }
+} else {
+    Write-Host "Building the latest IoT frontend..."
+    $iotBuildProcess = Start-Process -FilePath "npm.cmd" -ArgumentList "run","build" -WorkingDirectory $iotFrontendRoot -Wait -PassThru -NoNewWindow
+    if ($iotBuildProcess.ExitCode -ne 0) {
+        throw "IoT frontend build failed. Fix the build error before creating public links."
+    }
 }
 
 function Wait-TunnelUrl {
@@ -47,7 +88,7 @@ function Start-QuickTunnel {
             Remove-Item -LiteralPath $LogPath -Force
         }
 
-        $tunnelProcess = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url',$LocalUrl,'--protocol','http2','--no-autoupdate' -RedirectStandardError $LogPath -WindowStyle Hidden -PassThru
+        $tunnelProcess = Start-Process -FilePath $cloudflaredExe -ArgumentList 'tunnel','--url',$LocalUrl,'--no-autoupdate' -RedirectStandardError $LogPath -WindowStyle Hidden -PassThru
         try {
             $publicUrl = Wait-TunnelUrl $LogPath
             return [PSCustomObject]@{
@@ -71,37 +112,56 @@ if (Test-Path $frontendPreview) {
 if (Test-Path $portalPreview) {
     Remove-Item -LiteralPath $portalPreview -Recurse -Force
 }
+if (Test-Path $iotFrontendPreview) {
+    Remove-Item -LiteralPath $iotFrontendPreview -Recurse -Force
+}
 Copy-Item (Join-Path $frontendRoot "dist") $frontendPreview -Recurse -Force
+Copy-Item (Join-Path $iotFrontendRoot "dist") $iotFrontendPreview -Recurse -Force
 New-Item -ItemType Directory -Force -Path $portalPreview | Out-Null
 Copy-Item (Join-Path $portalRoot "assets") $portalPreview -Recurse -Force
-Copy-Item (Join-Path $portalRoot "index.html"), (Join-Path $portalRoot "iot-system.html"), (Join-Path $portalRoot "apk-system.html"), (Join-Path $portalRoot "styles.css"), (Join-Path $portalRoot "script.js"), (Join-Path $portalRoot "config.js"), (Join-Path $portalRoot "favicon.ico") $portalPreview -Force
+Copy-Item (Join-Path $portalRoot "index.html"), (Join-Path $portalRoot "platform.html"), (Join-Path $portalRoot "workflow.html"), (Join-Path $portalRoot "contact.html"), (Join-Path $portalRoot "iot-system.html"), (Join-Path $portalRoot "apk-system.html"), (Join-Path $portalRoot "system.html"), (Join-Path $portalRoot "styles.css"), (Join-Path $portalRoot "script.js"), (Join-Path $portalRoot "workspace.js"), (Join-Path $portalRoot "config.js"), (Join-Path $portalRoot "favicon.ico") $portalPreview -Force
 
 $env:CELERY_TASK_ALWAYS_EAGER = "1"
 $env:ALLOW_TUNNEL_ORIGINS = "1"
 $apiProcess = Start-Process -FilePath $pythonExe -ArgumentList '-m','uvicorn','apps.api.main:app','--host','127.0.0.1','--port','8100' -WorkingDirectory (Join-Path $platformRoot 'apk-platform') -WindowStyle Hidden -PassThru
 
-$apiLog = Join-Path $previewRoot "api-tunnel.log"
-$apiTunnelResult = Start-QuickTunnel 'http://127.0.0.1:8100' $apiLog
-$apiTunnel = $apiTunnelResult.Process
-$apiUrl = $apiTunnelResult.Url
-
 $bundle = Get-ChildItem (Join-Path $frontendPreview 'assets\index-*.js') | Select-Object -First 1
-$bundleText = [System.IO.File]::ReadAllText($bundle.FullName)
-$bundleText = $bundleText.Replace('http://127.0.0.1:8000', $apiUrl)
-if (-not $bundleText.Contains($apiUrl)) {
-    throw "The frontend API URL could not be configured."
-}
-[System.IO.File]::WriteAllText($bundle.FullName, $bundleText, [System.Text.UTF8Encoding]::new($false))
-
-$frontendProcess = Start-Process -FilePath $pythonExe -ArgumentList $staticServer,'--directory',$frontendPreview,'--port','5100','--bind','127.0.0.1' -WorkingDirectory $frontendPreview -WindowStyle Hidden -PassThru
+$frontendProcess = Start-Process -FilePath $pythonExe -ArgumentList $staticServer,'--directory',$frontendPreview,'--port','5100','--bind','127.0.0.1','--proxy-api','http://127.0.0.1:8100' -WorkingDirectory $frontendPreview -WindowStyle Hidden -PassThru
 $frontendLog = Join-Path $previewRoot "frontend-tunnel.log"
 $frontendTunnelResult = Start-QuickTunnel 'http://127.0.0.1:5100' $frontendLog
 $frontendTunnel = $frontendTunnelResult.Process
 $frontendUrl = $frontendTunnelResult.Url
 
+$bundleText = [System.IO.File]::ReadAllText($bundle.FullName)
+$bundleText = $bundleText.Replace('http://127.0.0.1:8000', $frontendUrl)
+if (-not $bundleText.Contains($frontendUrl)) {
+    throw "The frontend API URL could not be configured."
+}
+[System.IO.File]::WriteAllText($bundle.FullName, $bundleText, [System.Text.UTF8Encoding]::new($false))
+
+$jwtBytes = New-Object byte[] 48
+$jwtGenerator = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$jwtGenerator.GetBytes($jwtBytes)
+$jwtGenerator.Dispose()
+$env:JWT_SECRET = [Convert]::ToBase64String($jwtBytes)
+$env:DATA_DIR = Join-Path $previewRoot "iot-data"
+$env:KEYS_DIR = Join-Path $previewRoot "iot-keys"
+New-Item -ItemType Directory -Force -Path $env:DATA_DIR | Out-Null
+$migrationProcess = Start-Process -FilePath $iotPythonExe -ArgumentList '-m','alembic','-c','backend/alembic.ini','upgrade','head' -WorkingDirectory $iotRoot -Wait -PassThru -NoNewWindow
+if ($migrationProcess.ExitCode -ne 0) {
+    throw "IoT database migration failed."
+}
+$iotApiProcess = Start-Process -FilePath $iotPythonExe -ArgumentList '-m','uvicorn','main:app','--app-dir','backend','--host','127.0.0.1','--port','8200' -WorkingDirectory $iotRoot -WindowStyle Hidden -PassThru
+$iotFrontendProcess = Start-Process -FilePath $iotPythonExe -ArgumentList $staticServer,'--directory',$iotFrontendPreview,'--port','5200','--bind','127.0.0.1','--proxy-api','http://127.0.0.1:8200','--proxy-prefix','/backend/','--proxy-strip-prefix' -WorkingDirectory $iotFrontendPreview -WindowStyle Hidden -PassThru
+$iotFrontendLog = Join-Path $previewRoot "iot-frontend-tunnel.log"
+$iotFrontendTunnelResult = Start-QuickTunnel 'http://127.0.0.1:5200' $iotFrontendLog
+$iotFrontendTunnel = $iotFrontendTunnelResult.Process
+$iotFrontendUrl = $iotFrontendTunnelResult.Url
+
 $configPath = Join-Path $portalPreview 'config.js'
 $configText = [System.IO.File]::ReadAllText($configPath)
 $configText = [regex]::Replace($configText, 'apkFrontendUrl:\s*"[^"]+"', "apkFrontendUrl: `"$frontendUrl`"")
+$configText = [regex]::Replace($configText, 'iotSystemUrl:\s*"[^"]+"', "iotSystemUrl: `"$iotFrontendUrl`"")
 [System.IO.File]::WriteAllText($configPath, $configText, [System.Text.UTF8Encoding]::new($false))
 
 $portalProcess = Start-Process -FilePath $pythonExe -ArgumentList $staticServer,'--directory',$portalPreview,'--port','8101','--bind','127.0.0.1' -WorkingDirectory $portalPreview -WindowStyle Hidden -PassThru
@@ -117,7 +177,7 @@ if (-not $bundleText.Contains($portalUrl)) {
 }
 [System.IO.File]::WriteAllText($bundle.FullName, $bundleText, [System.Text.UTF8Encoding]::new($false))
 
-$processIds = @($apiProcess.Id, $apiTunnel.Id, $frontendProcess.Id, $frontendTunnel.Id, $portalProcess.Id, $portalTunnel.Id)
+$processIds = @($apiProcess.Id, $frontendProcess.Id, $frontendTunnel.Id, $iotApiProcess.Id, $iotFrontendProcess.Id, $iotFrontendTunnel.Id, $portalProcess.Id, $portalTunnel.Id)
 $processIds | ConvertTo-Json | Set-Content (Join-Path $previewRoot 'pids.json') -Encoding UTF8
 
 Write-Host ""

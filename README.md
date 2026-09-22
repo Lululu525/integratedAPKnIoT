@@ -1,10 +1,32 @@
 # integratedAPKnIoT
 
-Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個產品入口。
+Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個產品入口。來源系統仍維持各自的 GitHub 儲存庫；為了讓整合版能在單一主機部署，本專案內含一份經版本鎖定的 IoT 前後端快照，並保留一致的導航、服務切換與啟動流程。
+
+目前內含的 IoT 上游版本：[`Lee-Po-Tsung/ESP-Firmware-Over-The-Air@f220283`](https://github.com/Lee-Po-Tsung/ESP-Firmware-Over-The-Air/commit/f220283377c3bf11e107bb4ecf19e4a063ea10bc)（2026-09-18）。快照位於 `services/iot/`，同步上游時只更新此資料夾，不會回寫或修改組員的來源儲存庫。
+
+本機整合啟動器會複製 APK 與內含 IoT 快照的正式前端建置至執行期資料夾，並只在執行期複本套用整合導覽設定，因此來源專案不會被修改。
+
+整合專案另提供 APK 與 IoT 共用的帳號服務。使用者可不登入直接使用訪客模式，也可建立一組 Apionix 帳號，在兩個服務頁共用登入狀態與活動紀錄。帳號、PBKDF2 密碼雜湊、工作階段及活動資料儲存在本機 `.integrated-runtime/accounts.db`，不會寫入兩個來源專案。
+
+## 整合操作流程
+
+APK 與 IoT 入口會載入兩個來源專案的真正前端。IoT 頁面保留 Apionix 導覽列，下方直接嵌入原生 Dashboard；本機完整展示模式會建立受控的 Demo 工作階段，因此使用者不必先輸入帳號密碼。
+
+- 在 APK 安全分析與 IoT 裝置管理之間切換
+- 返回 Apionix 首頁
+- 重新載入目前系統
+- 在新分頁開啟原始系統
+- 在服務尚未啟動時看到明確的修復提示
+
+免登入只套用在綁定 `127.0.0.1` 的本機展示模式：啟動器先執行資料庫 migration、建立 Demo 帳號，再取得 access token 與 refresh token 並注入執行期複本；不會修改 IoT 上游 GitHub 儲存庫，也不套用到正式部署。
+
+IoT 本機頁面預設為訪客模式。使用者點選導覽列離開、關閉分頁、重新整理或使用瀏覽器上一頁時，會顯示瀏覽器原生的離開確認，提醒未保存的變更可能消失。
+
+IoT 內層導覽列在訪客模式顯示「註冊」與「登入」，取代 Demo 帳號、角色與登出資訊；兩個按鈕分別開啟來源前端原有的建立帳號與登入表單。
 
 ## APK Analysis Platform 連線
 
-首頁的「進入 APK 分析系統」會直接開啟真正的 APK 分析前端，不經過中間介紹頁。舊的 `apk-system.html` 網址仍保留為自動轉址，避免既有書籤失效。
+首頁的「進入 APK 分析系統」會在共用操作殼層中載入真正的 APK 分析前端。舊的 `apk-system.html` 網址仍保留，避免既有書籤失效。
 
 預設開發環境網址：
 
@@ -24,7 +46,7 @@ window.APIONIX_CONFIG = Object.freeze({
 
 ### 分享公開測試網址
 
-執行 `share-public.bat`。腳本會先建置最新 APK 前端，再透過 Cloudflare Quick Tunnel 建立臨時 HTTPS 網址，並在完成後顯示可傳給組員的 Apionix 入口網址。測試期間電腦與腳本啟動的服務必須保持運作；完成測試後執行 `stop-public.bat` 關閉所有公開入口。
+執行 `share-public.bat`。腳本會建置最新 APK 與 IoT 前端、啟動兩套 API，再透過 Cloudflare Quick Tunnel 建立臨時 HTTPS 網址，並在完成後顯示可傳給組員的單一 Apionix 入口網址。測試期間電腦與腳本啟動的服務必須保持運作；完成測試後執行 `stop-public.bat` 關閉所有公開入口。
 
 公開測試網址沒有固定網址或正常運作時間保證，請勿用於正式環境，也不要上傳機密 APK。
 
@@ -32,13 +54,24 @@ window.APIONIX_CONFIG = Object.freeze({
 
 ### 完整 APK 分析模式
 
-請確認本專案與 `apk-analysis-platform` 位於同一個上層目錄，接著執行：
+請確認本專案與 `apk-analysis-platform` 位於同一個上層目錄。IoT 程式已內含在 `services/iot/`，不再需要另外放置 IoT 儲存庫。接著執行：
 
 ```powershell
 .\start-local.bat
 ```
 
-腳本會啟動 Apionix 封面（8080）、APK 前端（5173）與 FastAPI（8000）。本機模式使用 Celery eager 執行分析工作，因此不需要另外啟動 Redis；正式部署仍使用 Celery worker 與 Redis。
+腳本會一次啟動：
+
+- Apionix 整合入口：8080
+- APK 前端：5173
+- APK FastAPI：8000
+- IoT 前端：5180
+- IoT FastAPI：8100
+- Apionix 共用帳號 API：8200
+
+啟動完成後會自動開啟整合首頁。請保持 `start-local.bat` 的命令視窗開啟；關閉視窗或按下 `Ctrl+C` 會停止由它啟動的服務。啟動器會檢查各服務是否成功回應，避免入口已開啟但 IoT 前後端其實尚未運行。
+
+第一次啟動時，啟動器會以 `uv` 安裝 IoT Python 相依套件、以 `npm` 建置前端，並套用 Alembic migration；之後會沿用既有環境與建置結果。本機 APK 模式使用 Celery eager 執行分析工作，因此不需要另外啟動 Redis；正式部署仍使用 Celery worker 與 Redis。
 
 ### 只預覽封面
 
@@ -55,7 +88,15 @@ python -m http.server 8080
 - `index.html`：Apionix 封面與產品介紹
 - `apk-system.html`：舊網址相容用的自動轉址頁
 - `iot-system.html`：IoT 系統入口
+- `system.html`：APK／IoT 共用操作殼層
+- `workspace.js`：服務切換、載入狀態與錯誤處理
+- `account_api.py`：共用帳號、工作階段與活動紀錄 API
+- `account.js`：各整合頁共用的登入狀態與導覽列控制
+- `auth.html`：註冊與登入頁
+- `user.html`：使用者資料與跨服務活動頁
+- `run_integrated.py`：啟動、檢查並持續監看完整本機服務
 - `config.js`：外部系統網址設定
 - `styles.css`：共用視覺樣式
 - `script.js`：動畫與系統連結初始化
 - `assets/`：品牌及產品圖片
+- `services/iot/`：鎖定於上游 `f220283` 的 IoT 前端、FastAPI 後端、ESP32 程式與文件

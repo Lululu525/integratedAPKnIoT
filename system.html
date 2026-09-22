@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Apionix 整合 APK 安全分析與 IoT 韌體裝置管理工作區。" />
+  <link rel="icon" type="image/png" href="assets/apionix-phoenix-favicon.png?v=2" />
+  <title>安全工作區｜Apionix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="workspace-page">
+  <header class="site-header nav-animate is-loaded">
+    <div class="container nav-wrap">
+      <a class="brand brand-image-only nav-item-animate" href="index.html#home" aria-label="Apionix 首頁">
+        <img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" />
+      </a>
+      <nav class="nav-links nav-item-animate">
+        <a href="index.html#home">首頁</a>
+        <a href="platform.html">平台介紹</a>
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-trigger" href="index.html#services">核心服務 <span>⌄</span></a>
+          <div class="nav-dropdown-menu">
+            <a data-apk-frontend href="system.html?service=apk">APK 安全分析</a>
+            <a data-iot-system href="iot-system.html">IoT 裝置檢測</a>
+          </div>
+        </div>
+        <a href="workflow.html">使用流程</a>
+        <a href="contact.html">聯絡我們</a>
+      </nav>
+      <div class="nav-actions nav-item-animate account-nav-actions" data-account-actions></div>
+    </div>
+  </header>
+  <main class="workspace-main">
+    <aside class="workspace-guide" id="workspaceGuide" hidden>
+      <p class="workspace-eyebrow">IOT SECURE ACCESS</p>
+      <h1>IoT 管理工作區</h1>
+      <p>登入後即可管理韌體版本、裝置與 OTA 更新。帳號驗證由 IoT 系統處理，Apionix 不會保存您的密碼。</p>
+      <ol class="workspace-guide-steps">
+        <li><b>已有帳號</b><span>輸入 Username 與 Password，按下 Sign In。</span></li>
+        <li><b>第一次使用</b><span>點選登入卡片下方的 Create an account 建立帳號。</span></li>
+        <li><b>完成工作</b><span>使用 IoT 系統內的 Back to Dashboard，即可安全返回 Apionix 首頁。</span></li>
+      </ol>
+      <div class="workspace-security-note"><span aria-hidden="true">✓</span><p><b>安全登入</b><small>韌體發布與裝置資料需要身分驗證。</small></p></div>
+    </aside>
+
+    <section class="workspace-stage">
+      <div class="workspace-status" id="workspaceStatus" role="status" aria-live="polite">
+        <span class="workspace-spinner" aria-hidden="true"></span>
+        <div><strong>正在連接服務</strong><span id="workspaceStatusText">請稍候，系統正在載入。</span></div>
+      </div>
+
+      <iframe
+        id="serviceFrame"
+        class="workspace-frame"
+        title="Apionix 安全服務"
+        allow="clipboard-read; clipboard-write"
+      ></iframe>
+
+      <section class="workspace-error" id="workspaceError" hidden>
+        <div class="workspace-error-icon" aria-hidden="true">!</div>
+        <p class="workspace-eyebrow">CONNECTION NOTICE</p>
+        <h1 id="workspaceErrorTitle">服務暫時無法載入</h1>
+        <p id="workspaceErrorText">請確認對應的前端與後端已啟動，再重新載入。</p>
+        <div class="workspace-error-actions">
+          <button class="btn btn-blue" id="retryService" type="button">重新連線</button>
+          <a class="btn btn-line" href="index.html">返回首頁</a>
+        </div>
+        <details>
+          <summary>查看測試提示</summary>
+          <p>本機整合模式需要同時啟動 Apionix、APK 前後端與 IoT 前後端。可在整合專案執行 <code>start-local.bat</code>。</p>
+        </details>
+      </section>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+  <script src="account.js"></script>
+  <script src="workspace.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const service = new URLSearchParams(location.search).get("service") === "iot" ? "iot" : "apk";
+      APIONIX_ACCOUNT.recordActivity(service);
+    });
+  </script>
+</body>
+</html>

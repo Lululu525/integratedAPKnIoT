@@ -1,0 +1,106 @@
+.login-page {
+  min-height: 100svh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+  background-color: var(--bg);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.5rem;
+  width: min(460px, 100%);
+}
+
+.login-logo {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.55rem;
+  background: var(--color-primary);
+  letter-spacing: 0.05em;
+}
+
+.login-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.login-brand-title {
+  letter-spacing: 0;
+}
+
+.login-card {
+  width: min(460px, 100%);
+  text-align: left;
+}
+
+.login-header h1 {
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.login-header p {
+  margin-top: 0.8rem;
+  line-height: 1.5;
+}
+
+.login-form {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.login-footer {
+  margin-top: 1.5rem;
+  text-align: left;
+  width: min(460px, 100%);
+}
+
+.login-footer a {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .login-page {
+    padding: 1.25rem;
+  }
+  .login-card {
+    padding: 1.5rem;
+  }
+  .login-header h1 {
+    font-size: 1.75rem;
+  }
+  .login-brand {
+    margin-bottom: 1rem;
+  }
+}
+
+/* The label and the reset link share a row, so the link sits with the field it
+belongs to rather than below the form where it reads as a second action. */
+.login-password-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.login-forgot {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.login-forgot:hover {
+  text-decoration: underline;
+}

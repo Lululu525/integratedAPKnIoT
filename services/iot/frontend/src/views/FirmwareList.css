@@ -1,0 +1,227 @@
+/* Rows below are sized against this element, not the viewport: the list shares
+  the firmware screen with the upload form, so its width is roughly half of
+  what a media query would report. */
+.page-wrapper {
+  container-type: inline-size;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  padding: 1.35rem 1.1rem 1.15rem 0.75rem;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  overflow-y: auto;
+}
+
+.main-card {
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  text-align: left;
+}
+
+.main-card-body {
+  padding: 0;
+}
+
+.firmware-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.fw-empty-state {
+  padding: 1.5rem;
+  border: 1px dashed #d6cec3;
+  border-radius: 0.75rem;
+  background: var(--bg-surface);
+}
+
+.fw-group-card {
+  border: 1px solid var(--border-light);
+  border-radius: 0.85rem;
+  background: var(--bg-surface);
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.035);
+  overflow: hidden;
+}
+
+.fw-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-surface);
+}
+
+.fw-group-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fw-group-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.fw-group-right {
+  display: flex;
+  align-items: center;
+}
+
+.fw-group-toggle-text {
+  border-bottom: 1px solid var(--text-primary);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.fw-group-toggle-text:hover {
+  background-color: var(--border-light);
+}
+
+.fw-history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.fw-history-row {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr) 300px;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.fw-history-row:first-child {
+  border-top: 0;
+}
+
+.fw-history-file {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.fw-file-name {
+  overflow-wrap: anywhere;
+}
+
+.fw-history-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  text-align: right;
+}
+
+/* A withdrawn version keeps its row so it stays distinguishable from one that
+  was never published, and reads as inactive rather than missing. */
+.fw-history-row-withdrawn {
+  background: var(--bg-subtle);
+}
+
+.fw-history-row-withdrawn .fw-history-version,
+.fw-history-row-withdrawn .fw-file-name {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+.fw-file-notes {
+  margin-top: 0.15rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* The confirm block replaces the button inside the 300px action column, so it
+  stacks instead of sitting on one line. */
+.fw-withdraw-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+  text-align: left;
+}
+
+.fw-withdraw-text,
+.fw-withdraw-warning,
+.fw-withdraw-error {
+  margin: 0;
+}
+
+.fw-withdraw-warning {
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-warning);
+  color: var(--text-warning);
+}
+
+.fw-withdraw-error {
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-error);
+  color: var(--text-error);
+}
+
+.fw-withdraw-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 1200px) {
+  .page-wrapper {
+    flex: 1 1 100%;
+    max-width: 100%;
+    padding: 0.75rem 0.9rem 1rem 0.65rem;
+  }
+}
+
+@container (max-width: 640px) {
+  .fw-group-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .fw-history-row {
+    grid-template-columns: 60px 1fr 150px;
+    gap: 0.75rem;
+  }
+
+  /* The confirm panel is a paragraph and two buttons. It does not fit the
+    column the withdraw button sits in, so the row it opens in stacks. */
+  .fw-history-row:has(.fw-withdraw-confirm) {
+    grid-template-columns: 1fr;
+  }
+
+  .fw-history-row:has(.fw-withdraw-confirm) .fw-history-right {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+@container (max-width: 420px) {
+  .fw-group-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fw-history-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .fw-history-right {
+    align-items: flex-start;
+  }
+}

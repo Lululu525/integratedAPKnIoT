@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="assets/apionix-phoenix-favicon.png?v=2" />
+  <title>帳號｜Apionix</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="account-page">
+  <header class="site-header is-loaded">
+    <div class="container nav-wrap">
+      <a class="brand brand-image-only" href="index.html"><img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" /></a>
+      <a class="btn btn-line" href="index.html">返回首頁</a>
+    </div>
+  </header>
+  <main class="account-main">
+    <section class="account-card">
+      <p class="eyebrow">SHARED ACCOUNT</p>
+      <h1 id="accountTitle">登入 Apionix</h1>
+      <p id="accountIntro">登入後即可在 APK 與 IoT 服務共用帳號與活動紀錄。</p>
+      <form id="accountForm">
+        <label>使用者名稱<input name="username" autocomplete="username" minlength="3" required /></label>
+        <label id="emailField" hidden>電子信箱<input name="email" type="email" autocomplete="email" /></label>
+        <label>密碼<input name="password" type="password" autocomplete="current-password" minlength="8" required /></label>
+        <p class="account-error" id="accountError" role="alert"></p>
+        <button class="btn btn-blue account-submit" type="submit" id="accountSubmit">登入</button>
+      </form>
+      <button class="account-mode-switch" type="button" id="accountMode">還沒有帳號？建立帳號</button>
+    </section>
+  </main>
+  <script src="account.js"></script>
+  <script>
+    (() => {
+      const params = new URLSearchParams(location.search);
+      let mode = params.get("mode") === "register" ? "register" : "login";
+      const form = document.querySelector("#accountForm");
+      const title = document.querySelector("#accountTitle");
+      const intro = document.querySelector("#accountIntro");
+      const emailField = document.querySelector("#emailField");
+      const emailInput = emailField.querySelector("input");
+      const submit = document.querySelector("#accountSubmit");
+      const switcher = document.querySelector("#accountMode");
+      const error = document.querySelector("#accountError");
+
+      function render() {
+        const registering = mode === "register";
+        title.textContent = registering ? "建立 Apionix 帳號" : "登入 Apionix";
+        intro.textContent = registering
+          ? "一組帳號即可共用 APK 分析與 IoT 裝置服務。"
+          : "登入後即可在 APK 與 IoT 服務共用帳號與活動紀錄。";
+        emailField.hidden = !registering;
+        emailInput.required = registering;
+        submit.textContent = registering ? "註冊並登入" : "登入";
+        switcher.textContent = registering ? "已經有帳號？返回登入" : "還沒有帳號？建立帳號";
+        form.password.autocomplete = registering ? "new-password" : "current-password";
+        history.replaceState(null, "", `?mode=${mode}`);
+      }
+
+      switcher.addEventListener("click", () => {
+        mode = mode === "register" ? "login" : "register";
+        error.textContent = "";
+        render();
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        error.textContent = "";
+        submit.disabled = true;
+        try {
+          const body = {
+            username: form.username.value.trim(),
+            password: form.password.value
+          };
+          if (mode === "register") body.email = form.email.value.trim();
+          const result = await APIONIX_ACCOUNT.request(`/auth/${mode}`, {
+            method: "POST",
+            body: JSON.stringify(body)
+          });
+          localStorage.setItem(APIONIX_ACCOUNT.TOKEN_KEY, result.token);
+          location.href = "user.html";
+        } catch (failure) {
+          error.textContent = failure.message;
+        } finally {
+          submit.disabled = false;
+        }
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>

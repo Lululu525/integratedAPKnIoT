@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="assets/apionix-phoenix-favicon.png?v=2" />
+  <title>平台介紹｜Apionix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header nav-animate is-loaded">
+    <div class="container nav-wrap">
+      <a class="brand brand-image-only" href="index.html" aria-label="Apionix 首頁"><img class="brand-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" /></a>
+      <nav class="nav-links nav-item-animate">
+        <a href="index.html">首頁</a>
+        <a class="is-active" href="platform.html">平台介紹</a>
+        <div class="nav-dropdown">
+          <a class="nav-dropdown-trigger" href="index.html#services" aria-haspopup="true">核心服務 <span aria-hidden="true">⌄</span></a>
+          <div class="nav-dropdown-menu" aria-label="核心服務選單">
+            <a data-apk-frontend href="http://127.0.0.1:5173">APK 安全分析</a>
+            <a data-iot-system href="system.html?service=iot">IoT 裝置檢測</a>
+          </div>
+        </div>
+        <a href="workflow.html">使用流程</a>
+        <a href="contact.html">聯絡我們</a>
+      </nav>
+      <div class="nav-actions nav-item-animate"><a class="btn btn-line" href="workflow.html">查看流程</a><a class="btn btn-blue" href="index.html#services">立即開始</a></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero page-hero-platform">
+      <div class="container page-hero-grid">
+        <div>
+          <p class="eyebrow">ABOUT APIONIX</p>
+          <h1>從 App 到裝置，<br>用同一個視角理解安全。</h1>
+          <p>Apionix 是面向 IoT 產品團隊的整合式安全展示平台，將 APK 靜態分析、機器學習評估、PDF 報告，以及韌體與裝置狀態整理在清楚一致的介面中。</p>
+        <div class="hero-actions"><a class="btn btn-blue" data-apk-frontend href="http://127.0.0.1:5173">體驗 APK 分析</a><a class="btn btn-dark" data-iot-system href="system.html?service=iot">查看 IoT 系統</a></div>
+        </div>
+        <div class="page-hero-visual"><img src="assets/platform-overview.png" alt="Apionix 平台總覽" /></div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="container">
+        <div class="section-head center"><p class="eyebrow">WHY APIONIX</p><h2 class="page-section-title">資訊不再散落，風險才能被正確理解。</h2><p class="section-desc">一個 IoT 產品同時包含手機 App、韌體、雲端服務與實體裝置。平台把不同來源的資訊放回產品生命週期，協助團隊先理解，再決定處理順序。</p></div>
+        <div class="value-grid">
+          <article class="info-card"><span>01</span><h3>App 端風險</h3><p>分析權限、元件暴露、Intent Filter、敏感 API 與反向工程證據，輸出可追溯的 findings。</p></article>
+          <article class="info-card"><span>02</span><h3>裝置端狀態</h3><p>整理韌體版本、OTA 更新、簽章驗證、裝置上線狀態與最後同步時間。</p></article>
+          <article class="info-card"><span>03</span><h3>清楚的報告</h3><p>將技術結果轉為統一層級、表格與圖表，方便開發人員、管理者與評審共同閱讀。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section dark-section">
+      <div class="container">
+        <div class="section-head center light"><p class="eyebrow">ANALYSIS MODEL</p><h2 class="page-section-title">兩種分析，各自回答不同問題。</h2></div>
+        <div class="comparison-grid">
+          <article class="comparison-card"><p class="card-label">STATIC ANALYSIS</p><h3>靜態規則與證據</h3><p>回答「實際找到哪些風險？」依據 manifest、permission、component 與 evidence 產生 Static Risk Score 和可解釋 findings。</p><ul><li>具體問題與修正建議</li><li>Low／Medium／High 統計</li><li>四頁 PDF 報告</li></ul></article>
+          <article class="comparison-card accent"><p class="card-label">MACHINE LEARNING</p><h3>模型相似性評估</h3><p>回答「整支 APK 的特徵較接近哪一類樣本？」ML 結果與靜態分數分開呈現，不直接相加，也不假裝是單一元件的證據。</p><ul><li>獨立模型狀態與版本</li><li>Probability／classification</li><li>缺少 artifact 時誠實標示</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section">
+      <div class="container architecture-wrap">
+        <div><p class="eyebrow">SYSTEM ARCHITECTURE</p><h2 class="page-section-title left">保留成熟架構，讓各模組獨立演進。</h2><p class="section-desc">FastAPI 負責 API，Celery 與 Redis 處理背景工作，SQLite 保存 metadata；AI-model 負責分析，React 負責操作介面，ReportLab 產出報告。</p></div>
+        <div class="architecture-flow"><div>React Frontend</div><span>→</span><div>FastAPI</div><span>→</span><div>Celery + Redis</div><span>→</span><div>AI-model</div><span>→</span><div>PDF Report</div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container footer-grid"><div><a class="brand footer-brand brand-image-only" href="index.html"><img class="brand-logo-img footer-logo-img" src="assets/apionix-wordmark.png" alt="Apionix" /></a><p>從 App 到裝置，建立清楚、可執行的產品安全視圖。</p></div><div><h4>平台</h4><a href="platform.html">平台介紹</a><a href="workflow.html">使用流程</a><a href="contact.html">聯絡我們</a></div><div><h4>服務</h4><a data-apk-frontend href="http://127.0.0.1:5173">APK 安全分析</a><a data-iot-system href="system.html?service=iot">IoT 裝置管理</a></div></div><div class="container footer-bottom">© 2026 Apionix</div></footer>
+  <script src="config.js"></script><script src="script.js"></script>
+</body>
+</html>
