@@ -28,6 +28,7 @@ function toSession(body: SessionResponse): Session {
     refreshToken: body.refresh_token,
     expiresAt: Date.now() + body.expires_in * 1000,
     account: toAccount(body.user),
+    isGuest: false,
   };
 }
 
@@ -40,14 +41,14 @@ function readStoredSession(): Session | null {
   if (!stored) return null;
 
   try {
-    const { accessToken, refreshToken, expiresAt, account } = JSON.parse(stored);
+    const { accessToken, refreshToken, expiresAt, account, isGuest } = JSON.parse(stored);
     if (typeof accessToken !== 'string' || typeof refreshToken !== 'string') {
       throw new Error('bad shape');
     }
     if (typeof expiresAt !== 'number' || typeof account?.email !== 'string') {
       throw new Error('bad shape');
     }
-    return { accessToken, refreshToken, expiresAt, account };
+    return { accessToken, refreshToken, expiresAt, account, isGuest: isGuest === true };
   } catch {
     sessionStorage.removeItem(STORAGE_KEY);
     return null;
@@ -106,7 +107,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           setSession(null);
           return null;
         }
-        const next = toSession(await res.json());
+        const next = { ...toSession(await res.json()), isGuest: current.isGuest === true };
         setSession(next);
         return next;
       } catch {

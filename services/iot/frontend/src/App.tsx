@@ -15,6 +15,7 @@ const SIGNED_OUT_PATHS = new Set(['/login', '/register', '/forgot-password', '/r
 function SiderBar() {
   const { pathname } = useLocation();
   const { session, logout } = useAuth();
+  const signedInSession = session && !session.isGuest ? session : null;
   const [isCollapsed, setIsCollapsed] = useState(() => window.innerWidth < 960);
 
   useEffect(() => {
@@ -82,29 +83,19 @@ function SiderBar() {
             ))}
           </nav>
 
-          <div className="sidebar-footer">
-            <div className="sidebar-account">
-              {session ? (
-                <>
-                  <strong className="sidebar-account-name text-sm font-medium text-primary font-mono">{session.account.email}</strong>
-                </>
-              ) : (
-                <span className="sidebar-account-name text-sm font-medium text-primary font-mono">Guest</span>
-              )}
-            </div>
+          {signedInSession && (
+            <div className="sidebar-footer">
+              <div className="sidebar-account">
+                <strong className="sidebar-account-name text-sm font-medium text-primary font-mono">{signedInSession.account.email}</strong>
+              </div>
 
-            <div className="sidebar-actions">
-              {session ? (
+              <div className="sidebar-actions">
                 <button type="button" className="sidebar-action sidebar-logout text-lg font-medium text-primary font-mono" onClick={logout}>
                   <span>登出</span>
                 </button>
-              ) : (
-                <Link to="/login" className="sidebar-action sidebar-login text-lg font-medium text-primary font-mono">
-                  Login
-                </Link>
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <button
           type="button"

@@ -29,6 +29,10 @@ export interface Account {
 export interface Session {
   accessToken: string;
   refreshToken: string;
+  // Integration-only guest sessions use a real scoped backend credential so
+  // the dashboard works immediately, but they are not presented as a signed-
+  // in person in the UI. A normal login always sets this to false.
+  isGuest?: boolean;
   // Absolute, in epoch milliseconds, computed from the `expires_in` the server
   // states. Read off the response rather than decoded out of the JWT: the
   // browser carries that token, it does not interpret it.

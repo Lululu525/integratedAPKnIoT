@@ -138,6 +138,7 @@ def fetch_iot_demo_session() -> dict[str, object]:
     return {
         "accessToken": body["access_token"],
         "refreshToken": body["refresh_token"],
+        "isGuest": True,
         "expiresAt": int(time.time() * 1000) + int(body["expires_in"]) * 1000,
         "account": {
             "id": body["user"]["id"],
