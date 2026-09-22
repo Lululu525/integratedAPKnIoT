@@ -1,0 +1,35 @@
+# clangd reads the compile database from .cdb/, which scripts/gen_compile_commands.sh
+# fills and .gitignore keeps out of the repo. Without it every Arduino include
+# fails to resolve and the whole file reports as errors.
+
+CompileFlags:
+  CompilationDatabase: .cdb
+
+  # The database records the exact xtensa-esp32s3-elf-g++ command line, and these
+  # four are GCC spellings clang rejects outright. A rejected flag aborts the whole
+  # command, so dropping them is what lets clangd parse the file at all.
+  Remove:
+    - -mlongcalls
+    - -mdisable-hardware-atomics
+    - -fstrict-volatile-bitfields
+    - -fno-tree-switch-conversion
+
+# A limits.h in the toolchain tests `__GLIBC_USE(...)` without defining it, and
+# clangd reports the preamble error against line 1 of whatever file pulled it in.
+# Nothing here uses function-like macros in preprocessor conditionals, so losing
+# this one diagnostic costs nothing.
+Diagnostics:
+  Suppress: [pp_expr_bad_token_lparen]
+
+---
+# arduino-cli injects Arduino.h into a sketch before compiling it, so the .ino on
+# disk is missing the include every Arduino symbol comes from. clangd also needs
+# telling that the unfamiliar extension is C++.
+#
+# arduino-cli also generates forward declarations, which this does not replace. It
+# holds only while the sketch calls nothing it defines below the call site.
+If:
+  PathMatch: .*\.ino
+
+CompileFlags:
+  Add: [-xc++, -include, Arduino.h]

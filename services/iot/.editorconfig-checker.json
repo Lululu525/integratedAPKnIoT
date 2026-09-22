@@ -1,0 +1,3 @@
+{
+  "Exclude": ["^esp32/.*\\.(c|cc|cpp|h|hpp|ino)$"]
+}

@@ -9,7 +9,7 @@ $processPath = $env:Path
 
 $portalRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $platformRoot = Join-Path (Split-Path -Parent $portalRoot) "apk-analysis-platform"
-$iotRoot = Join-Path (Split-Path -Parent $portalRoot) "ESP-Firmware-Over-The-Air"
+$iotRoot = Join-Path $portalRoot "services\iot"
 $pythonExe = Join-Path $platformRoot ".venv\Scripts\python.exe"
 $iotPythonExe = Join-Path $iotRoot ".venv\Scripts\python.exe"
 $staticServer = Join-Path $portalRoot "serve_static.py"
@@ -23,7 +23,14 @@ if (-not (Test-Path $pythonExe)) {
     throw "APK Analysis Platform virtual environment was not found: $pythonExe"
 }
 if (-not (Test-Path $iotPythonExe)) {
-    throw "IoT Platform virtual environment was not found: $iotPythonExe"
+    Write-Host "Installing the bundled IoT backend dependencies..."
+    $env:UV_CACHE_DIR = Join-Path $portalRoot ".integrated-runtime\uv-cache"
+    $env:UV_PYTHON = $pythonExe
+    $env:UV_PYTHON_DOWNLOADS = "never"
+    $syncProcess = Start-Process -FilePath "uv.exe" -ArgumentList "sync","--frozen","--no-dev" -WorkingDirectory $iotRoot -Wait -PassThru -NoNewWindow
+    if ($syncProcess.ExitCode -ne 0) {
+        throw "IoT backend dependency installation failed."
+    }
 }
 
 $frontendRoot = Join-Path $platformRoot "FrontendUI"
@@ -137,6 +144,13 @@ $jwtGenerator = [System.Security.Cryptography.RandomNumberGenerator]::Create()
 $jwtGenerator.GetBytes($jwtBytes)
 $jwtGenerator.Dispose()
 $env:JWT_SECRET = [Convert]::ToBase64String($jwtBytes)
+$env:DATA_DIR = Join-Path $previewRoot "iot-data"
+$env:KEYS_DIR = Join-Path $previewRoot "iot-keys"
+New-Item -ItemType Directory -Force -Path $env:DATA_DIR | Out-Null
+$migrationProcess = Start-Process -FilePath $iotPythonExe -ArgumentList '-m','alembic','-c','backend/alembic.ini','upgrade','head' -WorkingDirectory $iotRoot -Wait -PassThru -NoNewWindow
+if ($migrationProcess.ExitCode -ne 0) {
+    throw "IoT database migration failed."
+}
 $iotApiProcess = Start-Process -FilePath $iotPythonExe -ArgumentList '-m','uvicorn','main:app','--app-dir','backend','--host','127.0.0.1','--port','8200' -WorkingDirectory $iotRoot -WindowStyle Hidden -PassThru
 $iotFrontendProcess = Start-Process -FilePath $iotPythonExe -ArgumentList $staticServer,'--directory',$iotFrontendPreview,'--port','5200','--bind','127.0.0.1','--proxy-api','http://127.0.0.1:8200','--proxy-prefix','/backend/','--proxy-strip-prefix' -WorkingDirectory $iotFrontendPreview -WindowStyle Hidden -PassThru
 $iotFrontendLog = Join-Path $previewRoot "iot-frontend-tunnel.log"

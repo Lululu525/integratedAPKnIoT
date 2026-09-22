@@ -1,8 +1,10 @@
 # integratedAPKnIoT
 
-Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個產品入口。兩套來源系統維持各自的 GitHub 儲存庫與前後端架構，本專案僅負責一致的導航、服務切換與啟動流程。
+Apionix 整合入口網站，提供 APK 安全分析與 IoT 裝置管理兩個產品入口。來源系統仍維持各自的 GitHub 儲存庫；為了讓整合版能在單一主機部署，本專案內含一份經版本鎖定的 IoT 前後端快照，並保留一致的導航、服務切換與啟動流程。
 
-本機整合啟動器會複製 APK 的正式前端建置至執行期資料夾，並只在該複本隱藏 APK 內建導覽列，因此整合頁只顯示一組共用 Apionix 導覽列，APK 原始專案不會被修改。
+目前內含的 IoT 上游版本：[`Lee-Po-Tsung/ESP-Firmware-Over-The-Air@f220283`](https://github.com/Lee-Po-Tsung/ESP-Firmware-Over-The-Air/commit/f220283377c3bf11e107bb4ecf19e4a063ea10bc)（2026-09-18）。快照位於 `services/iot/`，同步上游時只更新此資料夾，不會回寫或修改組員的來源儲存庫。
+
+本機整合啟動器會複製 APK 與內含 IoT 快照的正式前端建置至執行期資料夾，並只在執行期複本套用整合導覽設定，因此來源專案不會被修改。
 
 整合專案另提供 APK 與 IoT 共用的帳號服務。使用者可不登入直接使用訪客模式，也可建立一組 Apionix 帳號，在兩個服務頁共用登入狀態與活動紀錄。帳號、PBKDF2 密碼雜湊、工作階段及活動資料儲存在本機 `.integrated-runtime/accounts.db`，不會寫入兩個來源專案。
 
@@ -16,7 +18,7 @@ APK 與 IoT 入口會載入兩個來源專案的真正前端。IoT 頁面保留 
 - 在新分頁開啟原始系統
 - 在服務尚未啟動時看到明確的修復提示
 
-免登入只套用在綁定 `127.0.0.1` 的本機展示模式：啟動器透過 IoT 後端取得短效 Token，再注入執行期複本；不會修改 IoT 原始碼或 GitHub 儲存庫，也不套用到公開部署。
+免登入只套用在綁定 `127.0.0.1` 的本機展示模式：啟動器先執行資料庫 migration、建立 Demo 帳號，再取得 access token 與 refresh token 並注入執行期複本；不會修改 IoT 上游 GitHub 儲存庫，也不套用到正式部署。
 
 IoT 本機頁面預設為訪客模式。使用者點選導覽列離開、關閉分頁、重新整理或使用瀏覽器上一頁時，會顯示瀏覽器原生的離開確認，提醒未保存的變更可能消失。
 
@@ -52,7 +54,7 @@ window.APIONIX_CONFIG = Object.freeze({
 
 ### 完整 APK 分析模式
 
-請確認本專案與 `apk-analysis-platform` 位於同一個上層目錄，接著執行：
+請確認本專案與 `apk-analysis-platform` 位於同一個上層目錄。IoT 程式已內含在 `services/iot/`，不再需要另外放置 IoT 儲存庫。接著執行：
 
 ```powershell
 .\start-local.bat
@@ -69,7 +71,7 @@ window.APIONIX_CONFIG = Object.freeze({
 
 啟動完成後會自動開啟整合首頁。請保持 `start-local.bat` 的命令視窗開啟；關閉視窗或按下 `Ctrl+C` 會停止由它啟動的服務。啟動器會檢查各服務是否成功回應，避免入口已開啟但 IoT 前後端其實尚未運行。
 
-本機 APK 模式使用 Celery eager 執行分析工作，因此不需要另外啟動 Redis；正式部署仍使用 Celery worker 與 Redis。IoT 介面沿用來源專案的正式建置檔，並由本機啟動器建立 Demo 管理員工作階段。
+第一次啟動時，啟動器會以 `uv` 安裝 IoT Python 相依套件、以 `npm` 建置前端，並套用 Alembic migration；之後會沿用既有環境與建置結果。本機 APK 模式使用 Celery eager 執行分析工作，因此不需要另外啟動 Redis；正式部署仍使用 Celery worker 與 Redis。
 
 ### 只預覽封面
 
@@ -97,3 +99,4 @@ python -m http.server 8080
 - `styles.css`：共用視覺樣式
 - `script.js`：動畫與系統連結初始化
 - `assets/`：品牌及產品圖片
+- `services/iot/`：鎖定於上游 `f220283` 的 IoT 前端、FastAPI 後端、ESP32 程式與文件

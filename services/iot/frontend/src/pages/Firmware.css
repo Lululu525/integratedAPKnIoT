@@ -1,0 +1,110 @@
+.firmware-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.main-card-header {
+  padding: 0 1.25rem 1rem;
+  margin-bottom: 0;
+  background: transparent;
+  border-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-titles h1 {
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.03em;
+}
+
+.header-titles p {
+  margin: 0;
+  max-width: 36rem;
+}
+
+.firmware-dashboard-header {
+  align-items: flex-start;
+}
+
+.firmware-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.firmware-summary-item {
+  letter-spacing: 0;
+}
+
+.firmware-manage-card {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  gap: 0;
+}
+
+/* The publishing column: the signing key, then the upload form. It owns the
+  width and the scrolling so the two cards in it stay one column and scroll
+  together, rather than each card sizing itself against the list beside it. */
+.firmware-publish-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  box-sizing: border-box;
+  flex: 0 0 48%;
+  max-width: 48%;
+  min-width: 450px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.4rem 0.85rem 1.25rem 1.25rem;
+  animation: fadeIn 0.35s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The list's left padding is trimmed to sit flush against the upload column.
+  With no upload column, that gap has nothing on the other side of it. */
+.firmware-manage-card.is-list-only .page-wrapper {
+  padding-left: 1.25rem;
+}
+
+@media (max-width: 1200px) {
+  .main-card-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .firmware-summary {
+    justify-content: flex-start;
+  }
+
+  .firmware-manage-card {
+    flex-direction: column;
+  }
+
+  .firmware-publish-column {
+    flex: 1 1 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: auto;
+    overflow-y: visible;
+    padding: 1rem 1rem 0.75rem;
+  }
+}

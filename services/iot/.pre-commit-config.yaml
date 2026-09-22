@@ -1,0 +1,37 @@
+# Formatters and linters run automatically before every commit.
+# Every tool runs through uv, so the versions match uv.lock and
+# nobody needs a separate system install.
+#
+# First-time setup after cloning:
+#     uv sync
+#     uv run pre-commit install
+#
+# Run by hand against the whole tree:
+#     uv run pre-commit run --all-files
+
+repos:
+  - repo: local
+    hooks:
+      - id: black
+        name: black (format python)
+        entry: uv run black
+        language: system
+        types: [python]
+
+      - id: ruff
+        name: ruff (lint python)
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+
+      - id: clang-format
+        name: clang-format (format c/c++)
+        entry: uv run clang-format -i
+        language: system
+        files: ^esp32/.*\.(c|cc|cpp|h|hpp|ino)$
+
+      - id: editorconfig-checker
+        name: editorconfig-checker (indent/whitespace)
+        entry: uv run ec
+        language: system
+        pass_filenames: false

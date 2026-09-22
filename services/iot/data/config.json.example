@@ -1,0 +1,16 @@
+{
+  "wifi_ssid": "your-wifi-ssid",
+  "wifi_password": "your-wifi-password",
+
+  "use_enterprise": false,
+  "eap_identity": "",
+  "eap_username": "",
+
+  "server_url": "https://192.168.1.100:8000",
+
+  "device_id": "the device_id the dashboard issued",
+  "device_secret": "the device_secret the dashboard showed once",
+
+  "ca_cert": "-----BEGIN CERTIFICATE-----\nMIIC4jCC...\n-----END CERTIFICATE-----\n",
+  "public_key": "-----BEGIN PUBLIC KEY-----\nMIIBIjAN...\n-----END PUBLIC KEY-----\n"
+}

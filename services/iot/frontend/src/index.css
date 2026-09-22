@@ -1,0 +1,427 @@
+:root {
+  /* Colors - Background */
+  --bg-body: #f6f0e8;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f3f4f6;
+  --bg-surface-hover: #f4efe6;
+
+  /* Colors - Text */
+  --text-primary: #171717;
+  --text-secondary: #555555;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #ffffff;
+
+  /* Colors - Border */
+  --border-light: #e5dfd6;
+  --border-dark: #b7b0a5;
+  --border-focus: #1f1b16;
+
+  /* Colors - Status / Accents */
+  --color-success: #16a34a;
+  --bg-success: #dcfce7;
+  --text-success: #166534;
+
+  --color-error: #dc2626;
+  --bg-error: #fee2e2;
+  --text-error: #991b1b;
+
+  --color-warning: #f59e0b;
+  --bg-warning: #fbe6cd;
+  --text-warning: #8c5a1d;
+
+  --color-info: #3b82f6;
+  --bg-info: #eff6ff;
+  --text-info: #1d4ed8;
+
+  /* Primary Brand (Black/Dark) */
+  --color-primary: #1f1b16;
+  --color-primary-hover: #2a2520;
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.9rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.02);
+  --shadow-lg: 0 12px 24px rgba(17,24,39,0.04);
+
+  /* Defaults */
+  font: 16px/145% var(--font-sans);
+  letter-spacing: 0.18px;
+  color-scheme: light;
+  color: var(--text-primary);
+  background: var(--bg-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-body);
+}
+
+#root {
+  width: 100%;
+  margin: 0;
+  text-align: left;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+/* Components */
+
+/* 1. Cards */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.card-header {
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* 2. Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+.badge-success {
+  background-color: var(--bg-success);
+  color: var(--text-success);
+}
+.badge-error {
+  background-color: var(--bg-error);
+  color: var(--text-error);
+}
+.badge-warning {
+  background-color: var(--bg-warning);
+  color: var(--text-warning);
+}
+.badge-info {
+  background-color: var(--bg-info);
+  color: var(--text-info);
+}
+
+/* 3. Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  text-decoration: none;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-secondary {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--border-light);
+}
+.btn-outline {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--color-primary);
+}
+.btn-outline:hover:not(:disabled) {
+  background-color: var(--bg-subtle);
+}
+
+/* 4. Alerts */
+/* Block, not flex. A flex container makes every child a column, and the
+children of an alert are the words of a sentence: a bare text node either side
+of a <code> or a <Link> came out as four narrow columns instead of a
+paragraph. Anything wanting a column layout inside an alert says so itself,
+the way .dev-new-device does. */
+.alert {
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-md);
+}
+.alert-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+/* Nothing resets anchors globally, so a link left to the browser comes out
+blue on an alert that is orange or green. Inheriting keeps it inside whichever
+alert it landed in and leaves the underline to say it is a link. */
+.alert a {
+  color: inherit;
+  text-decoration: underline;
+}
+.alert-error {
+  background-color: var(--bg-error);
+  color: var(--text-error);
+}
+.alert-success {
+  background-color: var(--bg-success);
+  color: var(--text-success);
+}
+.alert-warning {
+  background-color: var(--bg-warning);
+  color: var(--text-warning);
+}
+.alert-info {
+  background-color: var(--bg-info);
+  color: var(--text-info);
+}
+
+/* 5. Form Elements */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: var(--space-md);
+}
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.form-input, .form-select {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.form-select {
+  appearance: auto;
+}
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(31, 27, 22, 0.08);
+}
+.form-input::placeholder {
+  color: var(--text-tertiary);
+}
+.form-help {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* 6. Segmented Control */
+.segmented-control {
+  display: inline-flex;
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.2rem;
+}
+.segmented-btn {
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.segmented-btn.active {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  font-weight: 500;
+}
+
+/* 7. Search Box */
+.search-box {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+}
+.search-box .search-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+.search-box .form-input {
+  padding-left: 2.4rem;
+}
+
+/* 8. Data Table */
+.data-table-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.data-table-toolbar {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th {
+  text-align: left;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 0.8rem 1.2rem;
+  border-bottom: 1px solid var(--border-light);
+}
+.data-table td {
+  padding: 0.9rem 1.2rem;
+  border-bottom: 1px solid var(--bg-subtle);
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.data-table tbody tr:hover {
+  background-color: var(--bg-surface-hover);
+}
+
+/* 9. Dropzone */
+.dropzone {
+  position: relative;
+  border: 1px dashed var(--border-dark);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.dropzone.dropzone-active {
+  border-color: var(--color-primary);
+  background-color: var(--bg-subtle);
+}
+.dropzone-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  pointer-events: none;
+}
+
+/* Utilities */
+
+/* Typography - Families */
+.font-sans { font-family: var(--font-sans); }
+.font-mono { font-family: var(--font-mono); }
+
+/* Typography - Sizes */
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.85rem; line-height: 1.25rem; }
+.text-base { font-size: 1rem; line-height: 1.5rem; }
+.text-lg { font-size: 1.1rem; line-height: 1.75rem; }
+.text-xl { font-size: 1.45rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.7rem; line-height: 2rem; }
+.text-3xl { font-size: 2.2rem; line-height: 2.25rem; }
+
+/* Typography - Weights */
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* Typography - Colors */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-success { color: var(--text-success); }
+.text-error { color: var(--text-error); }
+.text-warning { color: var(--text-warning); }
+.text-info { color: var(--text-info); }
+.text-inverse { color: var(--text-inverse); }

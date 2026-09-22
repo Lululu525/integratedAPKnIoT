@@ -9,6 +9,7 @@ import socket
 import subprocess
 import sys
 import time
+import urllib.parse
 import urllib.request
 import webbrowser
 from pathlib import Path
@@ -17,10 +18,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 WORKSPACE = ROOT.parent
 APK_ROOT = WORKSPACE / "apk-analysis-platform"
-IOT_ROOT = WORKSPACE / "ESP-Firmware-Over-The-Air"
+EMBEDDED_IOT_ROOT = ROOT / "services" / "iot"
+IOT_ROOT = (
+    EMBEDDED_IOT_ROOT
+    if (EMBEDDED_IOT_ROOT.exists())
+    else WORKSPACE / "ESP-Firmware-Over-The-Air"
+)
 APK_PYTHON = APK_ROOT / ".venv" / "Scripts" / "python.exe"
 IOT_PYTHON = IOT_ROOT / ".venv" / "Scripts" / "python.exe"
-DEMO_USERNAME = "apionix-demo"
+DEMO_EMAIL = "demo@apionix.example"
 DEMO_PASSWORD = "apionix-local-demo-2026"
 RUNTIME_ROOT = ROOT / ".integrated-runtime"
 APK_FRONTEND_RUNTIME = RUNTIME_ROOT / "apk-frontend"
@@ -45,6 +51,56 @@ def wait_http(url: str, timeout: float = 45.0) -> bool:
     return False
 
 
+def run_checked(command: list[str], cwd: Path, env=None) -> None:
+    result = subprocess.run(
+        command,
+        cwd=cwd,
+        env=env or os.environ.copy(),
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        output = f"{result.stdout}\n{result.stderr}".strip()
+        raise RuntimeError(f"Command failed: {' '.join(command)}\n{output}")
+
+
+def ensure_iot_runtime(iot_env: dict[str, str]) -> None:
+    """Install and build the bundled upstream IoT application when needed."""
+    Path(iot_env["DATA_DIR"]).mkdir(parents=True, exist_ok=True)
+    if not IOT_PYTHON.exists():
+        uv = shutil.which("uv")
+        if not uv:
+            raise RuntimeError("uv is required to install the bundled IoT service.")
+        print("[setup] Installing bundled IoT backend dependencies")
+        run_checked([uv, "sync", "--frozen", "--no-dev"], IOT_ROOT, iot_env)
+
+    frontend_dist = IOT_ROOT / "frontend" / "dist" / "index.html"
+    if not frontend_dist.exists():
+        npm = shutil.which("npm.cmd") or shutil.which("npm")
+        if not npm:
+            raise RuntimeError("Node.js and npm are required to build the IoT dashboard.")
+        print("[setup] Installing bundled IoT frontend dependencies")
+        run_checked([npm, "ci"], IOT_ROOT / "frontend", iot_env)
+        print("[setup] Building bundled IoT dashboard")
+        run_checked([npm, "run", "build"], IOT_ROOT / "frontend", iot_env)
+
+    print("[setup] Applying bundled IoT database migrations")
+    run_checked(
+        [str(IOT_PYTHON), "-m", "alembic", "-c", "backend/alembic.ini", "upgrade", "head"],
+        IOT_ROOT,
+        iot_env,
+    )
+
+    public_key = Path(iot_env["KEYS_DIR"]) / "public_key.pem"
+    if not public_key.exists():
+        print("[setup] Generating the local IoT demo signing key pair")
+        run_checked(
+            [str(IOT_PYTHON), "backend/scripts/generate_keys.py"],
+            IOT_ROOT,
+            iot_env,
+        )
+
+
 def ensure_iot_demo_user(iot_env: dict[str, str]) -> None:
     user_env = iot_env.copy()
     user_env["OTA_USER_PASSWORD"] = DEMO_PASSWORD
@@ -52,10 +108,10 @@ def ensure_iot_demo_user(iot_env: dict[str, str]) -> None:
         [
             str(IOT_PYTHON),
             "backend/scripts/create_user.py",
-            "--username",
-            DEMO_USERNAME,
-            "--role",
-            "admin",
+            "--email",
+            DEMO_EMAIL,
+            "--public-key",
+            str(Path(iot_env["KEYS_DIR"]) / "public_key.pem"),
         ],
         cwd=IOT_ROOT,
         env=user_env,
@@ -67,18 +123,28 @@ def ensure_iot_demo_user(iot_env: dict[str, str]) -> None:
         raise RuntimeError(f"Could not create the local IoT demo account:\n{output}")
 
 
-def fetch_iot_demo_session() -> dict[str, str]:
+def fetch_iot_demo_session() -> dict[str, object]:
+    form = urllib.parse.urlencode(
+        {"username": DEMO_EMAIL, "password": DEMO_PASSWORD}
+    ).encode("utf-8")
     request = urllib.request.Request(
         "http://127.0.0.1:8100/api/auth/login",
-        data=json.dumps(
-            {"username": DEMO_USERNAME, "password": DEMO_PASSWORD}
-        ).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+        data=form,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
         method="POST",
     )
     with urllib.request.urlopen(request, timeout=10) as response:
-        token = json.load(response)["access_token"]
-    return {"token": token, "username": DEMO_USERNAME, "role": "admin"}
+        body = json.load(response)
+    return {
+        "accessToken": body["access_token"],
+        "refreshToken": body["refresh_token"],
+        "expiresAt": int(time.time() * 1000) + int(body["expires_in"]) * 1000,
+        "account": {
+            "id": body["user"]["id"],
+            "email": body["user"]["email"],
+            "hasPublicKey": bool(body["user"].get("has_public_key")),
+        },
+    }
 
 
 def prepare_apk_frontend() -> None:
@@ -102,7 +168,7 @@ def prepare_apk_frontend() -> None:
     )
 
 
-def prepare_iot_frontend(session: dict[str, str]) -> None:
+def prepare_iot_frontend(session: dict[str, object]) -> None:
     source = IOT_ROOT / "frontend" / "dist"
     if IOT_FRONTEND_RUNTIME.exists():
         shutil.rmtree(IOT_FRONTEND_RUNTIME)
@@ -115,14 +181,18 @@ def prepare_iot_frontend(session: dict[str, str]) -> None:
     bootstrap = (
         "<meta name=\"apionix-local-demo\" content=\"enabled\">\n"
         "<script>"
+        "if (window.top === window.self) {"
+        "var portal = location.protocol + '//' + location.hostname + ':8080/iot-system.html';"
+        "location.replace(portal);"
+        "}"
         "sessionStorage.setItem('ota.session', "
         f"{json.dumps(stored_session)});"
         "function fixApionixBackLink() {"
         "var back = document.querySelector('.header-back-link');"
         "if (!back || back.dataset.apionixFixed === 'ready') return;"
         "back.dataset.apionixFixed = 'ready';"
-        "back.href = '/';"
-        "back.onclick = function(event) { event.preventDefault(); location.href = '/'; };"
+        "back.href = 'http://127.0.0.1:8080/';"
+        "back.onclick = function(event) { event.preventDefault(); window.top.location.href = 'http://127.0.0.1:8080/'; };"
         "}"
         "new MutationObserver(fixApionixBackLink).observe(document.documentElement, {childList:true, subtree:true});"
         "addEventListener('DOMContentLoaded', fixApionixBackLink);"
@@ -140,6 +210,23 @@ def prepare_iot_frontend(session: dict[str, str]) -> None:
 
 
 def main() -> int:
+    iot_env = os.environ.copy()
+    iot_env["JWT_SECRET"] = "local-demo-only-secret-2026-08-20-at-least-32-bytes"
+    iot_env["JWT_EXPIRES_MINUTES"] = "1440"
+    iot_env["PYTHONUTF8"] = "1"
+    iot_env["DATA_DIR"] = str(RUNTIME_ROOT / "iot-data")
+    iot_env["KEYS_DIR"] = str(RUNTIME_ROOT / "iot-keys")
+    iot_env["UV_CACHE_DIR"] = str(RUNTIME_ROOT / "uv-cache")
+    iot_env["UV_PYTHON"] = sys.executable
+    iot_env["UV_PYTHON_DOWNLOADS"] = "never"
+    iot_env["npm_config_cache"] = str(RUNTIME_ROOT / "npm-cache")
+
+    try:
+        ensure_iot_runtime(iot_env)
+    except RuntimeError as exc:
+        print(f"ERROR: {exc}")
+        return 1
+
     required = [
         APK_PYTHON,
         IOT_PYTHON,
@@ -167,10 +254,6 @@ def main() -> int:
 
     apk_env = os.environ.copy()
     apk_env["CELERY_TASK_ALWAYS_EAGER"] = "1"
-    iot_env = os.environ.copy()
-    iot_env["JWT_SECRET"] = "local-demo-only-secret-2026-08-20-at-least-32-bytes"
-    iot_env["JWT_EXPIRES_MINUTES"] = "1440"
-
     try:
         ensure_iot_demo_user(iot_env)
     except RuntimeError as exc:

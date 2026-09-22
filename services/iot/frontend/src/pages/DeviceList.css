@@ -1,0 +1,206 @@
+.dev-page {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: var(--font-sans);
+  padding: 0 1.25rem;
+}
+
+.dev-header-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.dev-header-left h1 {
+  margin: 0 0 0.4rem 0;
+}
+
+.dev-header-left p {
+  margin: 0;
+}
+
+.dev-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-success);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.dev-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.dev-card {
+  padding: 1.2rem;
+  gap: 0.3rem;
+}
+
+.dev-card-value {
+  line-height: 1.1;
+}
+
+.dev-table-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.dev-table-toolbar {
+  padding: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.dev-table-filters {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.dev-filter-group {
+  gap: 0.4rem;
+}
+
+.dev-device-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.dev-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 0.45rem;
+  flex-shrink: 0;
+}
+
+.dot-green { background-color: var(--color-success); }
+.dot-red { background-color: var(--color-error); }
+.dot-amber { background-color: var(--color-warning); }
+
+.dev-device-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.dev-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 1024px) {
+  .dev-summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .dev-header-area {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+  .dev-summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dev-card {
+    padding: 1rem;
+  }
+  .dev-card-value {
+    font-size: 1.8rem;
+  }
+  .dev-table-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .dev-table-filters {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.dev-fw-error {
+  margin-top: 0.2rem;
+  color: var(--text-error);
+}
+
+.dev-empty-state {
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+/* Registration sits above the table rather than behind a modal: it is the
+first thing a new account has to do, and an empty fleet has nothing else on
+this page to look at. */
+.dev-register-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.dev-register-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.dev-register-form {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.dev-register-form .form-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.dev-new-device {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+/* Wraps rather than scrolls: this is meant to be selected and copied, and a
+value half of which is off-screen is a value someone copies half of. */
+.dev-secret-block {
+  width: 100%;
+  margin: 0;
+  padding: var(--space-sm);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-all;
+  user-select: all;
+}
+
+.dev-col-actions {
+  white-space: nowrap;
+  text-align: right;
+}
